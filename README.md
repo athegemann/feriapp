@@ -35,9 +35,9 @@ Permite administrar ferias temáticas, gestionar inscripciones de emprendedores 
 
 | Nombre | Usuario GitHub |
 |--------|---------------|
-| ... | [@usuario](https://github.com/usuario) |
-| ... | [@usuario](https://github.com/usuario) |
-| ... | [@usuario](https://github.com/usuario) |
+| Hegemann, Albaro | [@athegemann](https://github.com/athegemann) |
+| Vargas, Eliam | [@TheLocios](https://github.com/thelocios) |
+| Vasquez, Juan Pablo | [@sincejas](https://github.com/sincejas) |
 
 ---
 
