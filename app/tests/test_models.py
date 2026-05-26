@@ -1,11 +1,10 @@
 """Tests de comportamiento para el modelo Feria."""
 
 from datetime import date
-
 from django.test import TestCase
-
 from app.models import Feria
-
+from django.contrib.auth.models import User
+from app.models import Emprendedor, Inscripcion
 
 class FeriaModelTest(TestCase):
     """Verifica validaciones y operaciones básicas del modelo Feria."""
@@ -127,5 +126,138 @@ class FeriaModelTest(TestCase):
         self.assertEqual(self.feria.nombre, "Feria de Invierno")  # sin cambios
 
     # TODO: agregar tests para Emprendedor e Inscripcion cuando los implementen:
+
+class EmprendedorEInscripcionModelTest(TestCase):
+    
+    def setUp(self):
+        """Prepara el entorno y los objetos comunes para todas las pruebas de este eje."""
+        # Creamos los usuarios con la misma convención de nombres
+        self.user_pedro = User.objects.create_user(username="Pedro", password="password123")
+        self.user_jose = User.objects.create_user(username="Jose", password="password123")
+        
+        # Feria de prueba con capacidad limitada a 2 puestos
+        self.feria_test = Feria.objects.create(
+            nombre="Feria de Prueba",
+            categoria="Manualidades",
+            fecha_inicio=date(2026, 8, 1),
+            fecha_fin=date(2026, 8, 5),
+            ubicacion="Gimnasio Municipal",
+            capacidad_puestos=2
+        )
+
+        # Emprendedor base ya registrado en el sistema
+        self.emprendedor = Emprendedor.objects.create(
+            nombre="Pedro",
+            apellido="Gimenez",
+            email="pedro@feria.com",
+            rubro="Madera",
+            usuario=self.user_pedro
+        )
+
+    # --- TESTS DE VALIDACIÓN DE EMPRENDEDOR ---
+
+    def test_validate_emprendedor_correcto_retorna_vacio(self):
+        errors = Emprendedor.validate("Jose", "Gomez", "jose@feria.com", "Tejido", self.user_jose)
+        self.assertEqual(errors, [])
+
+    def test_validate_emprendedor_email_duplicado_retorna_error(self):
+        errors = Emprendedor.validate("Jose", "Gomez", "pedro@feria.com", "Tejido", self.user_jose)
+        self.assertIn("Ya existe un emprendedor registrado con este email.", errors)
+
+    def test_new_crea_emprendedor_exitosamente(self):
+        emp, errors = Emprendedor.new("Jose", "Gomez", "jose@feria.com", "Tejido", self.user_jose)
+        self.assertEqual(errors, [])
+        self.assertIsNotNone(emp)
+        self.assertEqual(emp.nombre, "Jose")
+
+    # --- TESTS DE VALIDACIÓN DE INSCRIPCIÓN ---
+
+    def test_validate_puesto_excede_capacidad_retorna_error(self):
+        # Intentamos usar el puesto 3 en una feria de capacidad máxima 2
+        errors = Inscripcion.validate(self.emprendedor, self.feria_test, 3, "confirmada", self.user_pedro)
+        self.assertIn("El número de puesto no puede exceder la capacidad de la feria (2).", errors)
+
+    def test_puesto_unico_por_feria_evita_duplicados(self):
+        # El emprendedor base (Pedro) ocupa el puesto 1
+        Inscripcion.objects.create(
+            emprendedor=self.emprendedor,
+            feria=self.feria_test,
+            numero_puesto=1,
+            estado="confirmada"
+        )
+        
+class EmprendedorEInscripcionModelTest(TestCase):
+    
+    def setUp(self):
+        """Prepara el entorno y los objetos comunes para todas las pruebas de este eje."""
+        # Creamos los usuarios con la misma convención de nombres
+        self.user_pedro = User.objects.create_user(username="Pedro", password="password123")
+        self.user_jose = User.objects.create_user(username="Jose", password="password123")
+        
+        # Feria de prueba con capacidad limitada a 2 puestos
+        self.feria_test = Feria.objects.create(
+            nombre="Feria de Prueba",
+            categoria="Manualidades",
+            fecha_inicio=date(2026, 8, 1),
+            fecha_fin=date(2026, 8, 5),
+            ubicacion="Gimnasio Municipal",
+            capacidad_puestos=2
+        )
+
+        # Emprendedor base ya registrado en el sistema
+        self.emprendedor = Emprendedor.objects.create(
+            nombre="Pedro",
+            apellido="Gimenez",
+            email="pedro@feria.com",
+            rubro="Madera",
+            usuario=self.user_pedro
+        )
+
+    # TESTS DE VALIDACIÓN DE EMPRENDEDOR 
+
+    def test_validate_emprendedor_correcto_retorna_vacio(self):
+        errors = Emprendedor.validate("Jose", "Gomez", "jose@feria.com", "Tejido", self.user_jose)
+        self.assertEqual(errors, [])
+
+    def test_validate_emprendedor_email_duplicado_retorna_error(self):
+        errors = Emprendedor.validate("Jose", "Gomez", "pedro@feria.com", "Tejido", self.user_jose)
+        self.assertIn("Ya existe un emprendedor registrado con este email.", errors)
+
+    def test_new_crea_emprendedor_exitosamente(self):
+        emp, errors = Emprendedor.new("Jose", "Gomez", "jose@feria.com", "Tejido", self.user_jose)
+        self.assertEqual(errors, [])
+        self.assertIsNotNone(emp)
+        self.assertEqual(emp.nombre, "Jose")
+
+    # TESTS DE VALIDACIÓN DE INSCRIPCIÓN 
+
+    def test_validate_puesto_excede_capacidad_retorna_error(self):
+        # Intentamos usar el puesto 3 en una feria de capacidad máxima 2
+        errors = Inscripcion.validate(self.emprendedor, self.feria_test, 3, "confirmada", self.user_pedro)
+        self.assertIn("El número de puesto no puede exceder la capacidad de la feria (2).", errors)
+
+    def test_puesto_unico_por_feria_evita_duplicados(self):
+        # El emprendedor base (Pedro) ocupa el puesto 1
+        Inscripcion.objects.create(
+            emprendedor=self.emprendedor,
+            feria=self.feria_test,
+            numero_puesto=1,
+            estado="confirmada"
+        )
+        
+        # Creamos un segundo emprendedor (Jose) para intentar disputar el mismo puesto
+        otro_emp = Emprendedor.objects.create(
+            nombre="Jose", 
+            apellido="Gomez", 
+            email="jose@feria.com", 
+            rubro="Tejido", 
+            usuario=self.user_jose
+        )
+        
+        # Validamos si nuestro método frena la inscripción duplicada en el puesto 1
+        errors = Inscripcion.validate(otro_emp, self.feria_test, 1, "confirmada", self.user_jose)
+        self.assertIn("El puesto 1 ya está ocupado en esta feria.", errors)
+
+        
     # def test_tiene_lugar_false_cuando_llena(self): ...
     # def test_puestos_ocupados_cuenta_solo_confirmadas(self): ...
