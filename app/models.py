@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from django.db import models
+from django.contrib.auth.models import User
+
 
 
 class Feria(models.Model):
@@ -115,3 +117,16 @@ class Feria(models.Model):
     # class Categoria(models.Model): ...  ← extraer categoria a FK
     # class Emprendedor(models.Model): ...
     # class Inscripcion(models.Model): ...
+
+class Notificacion(models.Model):
+    """Representa una notificación para un emprendedor."""
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    asunto = models.CharField(max_length=200)
+    mensaje = models.TextField()
+    leida = models.BooleanField(default=False)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Retorna una representación legible de la notificación."""
+        return f"Notificación: {self.mensaje[:50]}..."
