@@ -1,15 +1,55 @@
 """Modelos de dominio para la aplicación de ferias."""
 
 from __future__ import annotations
-
 from django.db import models
+
+class Categoria(models.Model):
+    """Representa una categoria tematica a la que pertenece una feria"""
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+    @classmethod
+    def validate(cls, nombre):
+        """Valida los datos de la categoria, retorna una lista de errores"""
+        errors = []
+        if not nombre or not nombre.strip():
+            errors.append("El nombre de la categoria es obligatorio.")
+        return errors
+
+    @classmethod
+    def new(cls, nombre, descripcion=""):
+        """Crea y persiste una nueva categoria si los datos son validos"""
+        errors = cls.validate(nombre)
+        if errors:
+            return None, errors
+
+        categoria = cls.objects.create(
+            nombre=nombre.strip(),
+            descripcion=descripcion.strip() if descripcion else ""
+        )
+        return categoria, []
+
+    def update(self, nombre, descripcion=""):
+        """Actualiza los datos de la categoria si son validos"""
+        errors = self.__class__.validate(nombre)
+        if errors:
+            return errors
+
+        self.nombre = nombre.strip()
+        self.descripcion = descripcion.strip() if descripcion else ""
+        self.save()
+        return []
 
 
 class Feria(models.Model):
-    """Representa una feria con su período, ubicación y capacidad disponible."""
+    """Representa una feria con su período, ubicación y capacidad disponible"""
 
     nombre = models.CharField(max_length=200)
-    categoria = models.CharField(max_length=100)
+    # Extraemos categoria a ForeignKey como pedía el profe
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     ubicacion = models.CharField(max_length=200)
@@ -25,7 +65,6 @@ class Feria(models.Model):
 
     def puestos_ocupados(self):
         """Retorna la cantidad de inscripciones confirmadas."""
-        # Mientras Inscripcion no exista, no hay relaciones para contar.
         if not hasattr(self, "inscripcion_set"):
             return 0
         return self.inscripcion_set.filter(estado="confirmada").count()
@@ -51,7 +90,8 @@ class Feria(models.Model):
         if not nombre or not nombre.strip():
             errors.append("El nombre es obligatorio.")
 
-        if not categoria or not categoria.strip():
+        # Validamos que venga un objeto de categoría
+        if not categoria:
             errors.append("La categoría es obligatoria.")
 
         if not ubicacion or not ubicacion.strip():
@@ -81,7 +121,7 @@ class Feria(models.Model):
 
         feria = cls.objects.create(
             nombre=nombre.strip(),
-            categoria=categoria.strip(),
+            categoria=categoria, # Ya no lleva .strip() porque es ForeignKey
             fecha_inicio=fecha_inicio,
             fecha_fin=fecha_fin,
             ubicacion=ubicacion.strip(),
@@ -103,7 +143,7 @@ class Feria(models.Model):
             return errors
 
         self.nombre = nombre.strip()
-        self.categoria = categoria.strip()
+        self.categoria = categoria # Ya no lleva .strip() porque es un objeto ForeignKey
         self.fecha_inicio = fecha_inicio
         self.fecha_fin = fecha_fin
         self.ubicacion = ubicacion.strip()
@@ -111,7 +151,6 @@ class Feria(models.Model):
         self.save()
         return []
 
-    # TODO: Agregar los siguientes modelos:
-    # class Categoria(models.Model): ...  ← extraer categoria a FK
+    # TODO: Falta agregar los siguientes modelos:
     # class Emprendedor(models.Model): ...
     # class Inscripcion(models.Model): ...
