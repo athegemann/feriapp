@@ -5,36 +5,50 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="h4">Ferias activas</h2>
-  <!-- TODO: agregar botón "Nueva feria" cuando implementen esa vista -->
+  </div>
+
+<div class="card mb-4 bg-light shadow-sm border-0">
+    <div class="card-body py-2">
+        <span class="fw-semibold text-muted me-2">Filtrar por Categoría:</span>
+        <div class="d-inline-flex flex-wrap gap-2 mt-2 mt-md-0">
+            <a href="{% url 'ferias:lista_ferias' %}" class="btn btn-sm {% if not categoria_actual %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+                Todas
+            </a>
+            {% for cat in categorias %}
+                <a href="{% url 'ferias:lista_ferias' %}?categoria={{ cat.id }}" 
+                   class="btn btn-sm {% if categoria_actual == cat.id|stringformat:'s' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ cat.nombre }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
-<div class="table-responsive">
-  <table class="table table-hover align-middle">
+<div class="table-responsive shadow-sm rounded border bg-white">
+  <table class="table table-hover align-middle mb-0">
     <thead class="table-light">
       <tr>
-        <th>Nombre</th>
+        <th class="ps-3">Nombre</th>
         <th>Categoría</th>
         <th>Fechas</th>
         <th>Ubicación</th>
         <th>Puestos</th>
-        <!-- TODO: agregar columna de acciones cuando implementen detalle_feria -->
-      </tr>
+        </tr>
     </thead>
     <tbody>
       {% for feria in ferias %}
       <tr>
-        <td class="fw-semibold">{{ feria.nombre }}</td>
-        <td>{{ feria.categoria }}</td>
-        <td>{{ feria.fecha_inicio }} → {{ feria.fecha_fin }}</td>
+        <td class="fw-semibold text-primary ps-3">{{ feria.nombre }}</td>
+        <td><span class="badge bg-secondary">{{ feria.categoria.nombre }}</span></td>
+        <td>{{ feria.fecha_inicio|date:"d/m/Y" }} &rarr; {{ feria.fecha_fin|date:"d/m/Y" }}</td>
         <td>{{ feria.ubicacion }}</td>
         <td>
-          <!-- TODO: completar con puestos_ocupados() cuando implementen Inscripcion -->
-          <span class="badge bg-secondary">{{ feria.capacidad_puestos }} totales</span>
+          <span class="badge bg-light text-dark border">{{ feria.capacidad_puestos }} totales</span>
         </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="5" class="text-center text-muted">No hay ferias activas.</td>
+        <td colspan="5" class="text-center text-muted py-4">No hay ferias activas para este filtro.</td>
       </tr>
       {% endfor %}
     </tbody>
