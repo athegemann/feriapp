@@ -10,8 +10,30 @@
   </div>
 </div>
 
-<!-- TODO: reemplazar con estadísticas reales del contexto -->
-<div class="row g-3">
-
+<div class="row g-3 text-center">
+    <div class="col-md-4">
+        <div class="card border-primary h-100 shadow-sm">
+            <div class="card-body py-4">
+                <h5 class="card-title text-primary fw-bold">Total de Ferias</h5>
+                <p class="card-text display-4 fw-bold text-dark mt-2">{{ total_ferias }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-success h-100 shadow-sm">
+            <div class="card-body py-4">
+                <h5 class="card-title text-success fw-bold">Ferias Activas</h5>
+                <p class="card-text display-4 fw-bold text-dark mt-2">{{ ferias_activas }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info h-100 shadow-sm">
+            <div class="card-body py-4">
+                <h5 class="card-title text-info fw-bold">Categorías Registradas</h5>
+                <p class="card-text display-4 fw-bold text-dark mt-2">{{ total_categorias }}</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
