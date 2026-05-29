@@ -276,7 +276,7 @@ class Inscripcion(models.Model):
             errors.append("El estado especificado no es válido.")
 
         return errors
-   
+
     @classmethod
     def new(cls, emprendedor, feria, numero_puesto, estado='confirmada', registrado_por=None):
         """Genera una nueva inscripción si pasa las validaciones de negocio"""

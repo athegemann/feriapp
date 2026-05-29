@@ -16,7 +16,7 @@
             </a>
             {% for cat in categorias %}
                 <a href="{% url 'ferias:lista_ferias' %}?categoria={{ cat.id }}" 
-                   class="btn btn-sm {% if categoria_actual == cat.id|stringformat:'s' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    class="btn btn-sm {% if categoria_actual == cat.id|stringformat:'s' %}btn-primary{% else %}btn-outline-primary{% endif %}">
                     {{ cat.nombre }}
                 </a>
             {% endfor %}
