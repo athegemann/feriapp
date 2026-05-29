@@ -3,7 +3,7 @@
 from datetime import date
 from django.test import TestCase
 from django.contrib.auth.models import User
-from app.models import Categoria, Feria, Emprendedor, Inscripcion
+from app.models import Categoria, Feria, Emprendedor, Inscripcion, Visitante
 
 # --- TESTS DEL MODELO CATEGORIA ---
 
@@ -231,3 +231,122 @@ class EmprendedorEInscripcionModelTest(TestCase):
         # Validamos si nuestro metodo frena la inscripción duplicada en el puesto 1
         errors = Inscripcion.validate(otro_emp, self.feria_test, 1, "confirmada", self.user_jose)
         self.assertIn("El puesto 1 ya está ocupado en esta feria.", errors)
+
+# --- Tests de visitante: ---
+
+class VisitanteModelTest(TestCase):
+    
+    def setUp(self):
+        # Usuarios base para los tests
+        self.user1 = User.objects.create_user(username="user1", password="password123")
+        self.user2 = User.objects.create_user(username="user2", password="password123")
+        
+        # Visitante valido
+        self.visitante_data = {
+            "nombre": "Juan",
+            "apellido": "Perez",
+            "email": "juan.perez@example.com",
+            "usuario": self.user1
+        }
+
+    # Metodo __str__()
+    def test_str_valid(self):
+        visitante, errors = Visitante.new(**self.visitante_data)
+        self.assertEqual(str(visitante), "Juan Perez")
+    
+    # Metodo validate()
+    def test_validate_success(self):
+        errors = Visitante.validate(**self.visitante_data)
+        self.assertEqual(len(errors), 0)
+    
+    def test_validate_missing_fields(self):
+        errors = Visitante.validate(nombre="", apellido=" ", email="", usuario=None)
+        
+        self.assertIn("El nombre es obligatorio.", errors)
+        self.assertIn("El apellido es obligatorio.", errors)
+        self.assertIn("El email es obligatorio.", errors)
+        self.assertIn("El usuario asociado es obligatorio.", errors)
+        self.assertEqual(len(errors), 4)
+
+    def test_validate_duplicate_email_and_user(self):
+        # Creamos el primer visitante
+        Visitante.new(**self.visitante_data)
+        
+        # Valida los mismos datos de nuevo (sin pasar instance_id)
+        errors = Visitante.validate(**self.visitante_data)
+        
+        self.assertIn("Ya existe un visitante registrado con este email.", errors)
+        self.assertIn("Este usuario ya esta vinculado a otro visitante.", errors)
+        self.assertEqual(len(errors), 2)
+
+    def test_new_success(self):
+        visitante, errors = Visitante.new(
+            nombre="  Maria", 
+            apellido="  Gomez", 
+            email="  maria.gomez@example.com", 
+            usuario=self.user1
+        )
+        
+        self.assertEqual(len(errors), 0)
+        self.assertIsNotNone(visitante)
+
+        # Comprobamos los strip()
+        self.assertEqual(visitante.nombre, "Maria")
+        self.assertEqual(visitante.apellido, "Gomez")
+        self.assertEqual(visitante.email, "maria.gomez@example.com")
+        self.assertEqual(Visitante.objects.count(), 1)
+    
+    # Metodo update()
+    def test_update_success(self):
+        visitante, _ = Visitante.new(**self.visitante_data)
+        
+        errors = visitante.update(
+            nombre="Juan Carlos",
+            apellido="Perez",
+            email="juan.carlos@example.com",
+            usuario=self.user1
+        )
+        
+        self.assertEqual(len(errors), 0)
+        visitante.refresh_from_db()
+        self.assertEqual(visitante.nombre, "Juan Carlos")
+        self.assertEqual(visitante.email, "juan.carlos@example.com")
+
+    def test_update_same_email_and_user(self):
+        visitante, _ = Visitante.new(**self.visitante_data)
+        
+        # Actualizamos manteniendo el mismo email y usuario
+        errors = visitante.update(
+            nombre="Juan Modificado",
+            apellido="Perez",
+            email=self.visitante_data["email"],
+            usuario=self.visitante_data["usuario"]
+        )
+        
+        self.assertEqual(len(errors), 0)
+        visitante.refresh_from_db()
+        self.assertEqual(visitante.nombre, "Juan Modificado")
+    
+    def test_update_duplicate_email_failure(self):
+        # Creamos dos visitantes distintos
+        visitante1, _ = Visitante.new(**self.visitante_data)
+        visitante2, _ = Visitante.new(
+            nombre="Ana", 
+            apellido="Sanchez", 
+            email="ana@example.com", 
+            usuario=self.user2
+        )
+        
+        # Intentamos actualizar el visitante2 con el email del visitante1
+        errors = visitante2.update(
+            nombre="Ana",
+            apellido="Sanchez",
+            email=self.visitante_data["email"],  # Colision de email
+            usuario=self.user2
+        )
+        
+        self.assertIn("Ya existe un visitante registrado con este email.", errors)
+        
+        # Verificamos que no se haya guardado el cambio
+        visitante2.refresh_from_db()
+        self.assertEqual(visitante2.email, "ana@example.com")
