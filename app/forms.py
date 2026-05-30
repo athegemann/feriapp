@@ -57,12 +57,16 @@ class RegistroEmprendedorForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         # Se usa el metodo Validate de la clase Emprendedor para mantener la coherencia
+        nombre = self.cleaned_data.get('nombre', 'temp') or 'temp'
+        apellido = self.cleaned_data.get('apellido', 'temp') or 'temp'
+        rubro = self.cleaned_data.get('rubro', 'temp') or 'temp'
+
         errors = Emprendedor.validate(
-            nombre=self.cleaned_data.get('nombre', 'temp'),
-            apellido=self.cleaned_data.get('apellido', 'temp'),
+            nombre=nombre,
+            apellido=apellido,
             email=email,
-            rubro=self.cleaned_data.get('rubro', 'temp'),
-            usuario=User()  
+            rubro=rubro,
+            usuario=User() 
         )
         # Buscar el error espesifico de mail 
         for error in errors:
@@ -99,7 +103,7 @@ class RegistroEmprendedorForm(forms.ModelForm):
                 
             return emprendedor
 
-class InscripcionFrom(forms.ModelForm):
+class InscripcionForm(forms.ModelForm):
     """Formulario para que un emprendedor solicite un puesto"""
     class Meta: 
         model = Inscripcion
