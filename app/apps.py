@@ -2,7 +2,6 @@
 
 from django.apps import AppConfig
 
-
 class FeriasConfig(AppConfig):
     """Metadatos de registro de la aplicación en Django."""
 
