@@ -60,7 +60,7 @@ class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
 
 #Vista para ver mis inscripciones
-class MisINscripcionesView(LoginRequiredMixin, ListView):
+class MisInscripcionesView(LoginRequiredMixin, ListView):
     model = Inscripcion
     template_name = 'ferias/mis_inscripciones.html'
     context_object_name = 'inscripciones'
