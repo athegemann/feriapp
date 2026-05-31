@@ -271,8 +271,7 @@ class Inscripcion(models.Model):
             if ocupado.exists():
                 errors.append(f"El puesto {numero_puesto} ya está ocupado en esta feria.")
 
-        # CORRECCION DE BUG: Estaba como dict(cls.ESTADO_CHOICES) pero la variable se llama ESTADO_Incrip
-        if estado not in dict(cls.ESTADO_Incrip):
+        if estado not in dict(cls.ESTADO_CHOICES):
             errors.append("El estado especificado no es válido.")
 
         return errors
