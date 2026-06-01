@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Ingresar{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger small">
+                            Usuario o contraseña incorrectos. Por favor, reintentá.
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre de usuario</label>
+                        <input type="text" name="username" class="form-control" placeholder="Ingresá tu usuario" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Contraseña</label>
+                        <input type="password" name="password" class="form-control" placeholder="Ingresá tu contraseña" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2">Ingresar</button>
+                </form>
+                <div class="text-center mt-3">
+                    <p class="small text-muted">¿No tenés una cuenta? <a href="{% url 'ferias:registro_emprendedor' %}" class="text-success">Registrate acá</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
