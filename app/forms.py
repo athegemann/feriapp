@@ -47,11 +47,11 @@ class RegistroEmprendedorForm(forms.ModelForm):
         model = Emprendedor
         fields = ['nombre', 'apellido', 'email', 'rubro', 'telefono']
 
-    def clena_username(self):
+    def clean_username(self): 
         """Valida que el nombre de usuario no esté tomado en el sistema"""
         username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
-            raise forms.ValidationError("Este nombre de usuario ya esta registrado. Ingrese otro")
+            raise forms.ValidationError("Este nombre de usuario ya está registrado. Ingrese otro.")
         return username
     
     def clean_email(self):
@@ -66,9 +66,9 @@ class RegistroEmprendedorForm(forms.ModelForm):
             apellido=apellido,
             email=email,
             rubro=rubro,
-            usuario=User() 
+            usuario=None  # Evita que Django busque un usuario no guardado
         )
-        # Buscar el error espesifico de mail 
+        # Buscar el error especifico de mail 
         for error in errors:
             if "email" in error.lower():
                 raise forms.ValidationError(error)
