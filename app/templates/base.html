@@ -19,11 +19,47 @@
             <a class="nav-link" href="{% url 'ferias:lista_ferias' %}">Ferias</a>
           </li>
           <!-- TODO: agregar links a Emprendedores e Inscripciones -->
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'ferias:mis_inscripciones' %}">Mis Inscripciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'ferias:nueva_inscripcion' %}">Inscribirme</a>
+            </li>
+            <li class="nav-item ms-lg-3 me-lg-2">
+              <span class="navbar-text text-white">
+                Hola, <strong>{{ user.username }}</strong>
+              </span>
+            <li class="nav-item">
+              <form action="{% url 'ferias:logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-light ms-lg-2">Salir</button>
+              </form>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link btn btn-sm btn-outline-light text-white px-3 mx-1 my-1 my-lg-0" href="{% url 'ferias:login' %}">Ingresar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link btn btn-sm btn-light text-success fw-bold px-3 mx-1 my-1 my-lg-0" href="{% url 'ferias:registro_emprendedor' %}">Registrarse</a>
+            </li>
+          {% endif %}
         </ul>
       </div>
     </div>
   </nav>
 
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  
   <main class="container my-4">
     {% block content %}{% endblock %}
   </main>

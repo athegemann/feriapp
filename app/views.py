@@ -97,28 +97,28 @@ class NuevaInscripcionView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.success(self.request, self.success_message)
         return redirect(self.success_url)
     
-    def cancelar_inscripcion_view(request, pk):
-        if request.method == "POST" and request.user.is_authenticated:
-            try: 
-                inscripcion = Inscripcion.objects.get(pk=pk, emprendedor=request.user.emprendedor)
-        
-                errors = inscripcion.update(
-                    emprendedor=inscripcion.emprendedor,
-                    feria=inscripcion.feria,
-                    numero_puesto=inscripcion.numero_puesto,
-                    estado='cancelada',
-                    registrado_por=inscripcion.registrado_por
-                )
-        
-                if not errors:
-                    messages.success(request, "La inscripción fue cancelada con exito")
-                else:
-                    messages.error(request, errors[0])
+def cancelar_inscripcion_view(request, pk):
+    if request.method == "POST" and request.user.is_authenticated:
+        try: 
+            inscripcion = Inscripcion.objects.get(pk=pk, emprendedor=request.user.emprendedor)
+            
+            errors = inscripcion.update(
+                emprendedor=inscripcion.emprendedor,
+                feria=inscripcion.feria,
+                numero_puesto=inscripcion.numero_puesto,
+                estado='cancelada',
+                registrado_por=inscripcion.registrado_por
+            )
+            
+            if not errors:
+                messages.success(request, "La inscripción fue cancelada con éxito.")
+            else:
+                messages.error(request, errors[0])
 
-            except Inscripcion.DoesNotExist:
-                messages.error(request, "La inscripción solicitada no existe o no te pertenece")
+        except Inscripcion.DoesNotExist:
+            messages.error(request, "La inscripción solicitada no existe o no te pertenece.")
 
-        return redirect('ferias:mis_inscripciones')
+    return redirect('ferias:mis_inscripciones')
     
 # TODO: implementar las siguientes vistas:
 # class DetalleFeriaView(DetailView): ...
