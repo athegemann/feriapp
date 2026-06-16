@@ -370,3 +370,50 @@ class Visitante(models.Model):
         self.usuario = usuario
         self.save()
         return []
+    
+class Sector(models.Model):
+    """Representa una subdivisión física dentro de una feria"""
+    feria = models.ForeignKey(Feria, on_delete=models.CASCADE, related_name="sectores")
+    nombre = models.CharField(max_length=100)
+    capacidad_puestos = models.PositiveIntegerField()
+    tiene_conexion_electrica = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Sector {self.nombre} - {self.feria.nombre}"
+
+    @classmethod
+    def validate(cls, feria, nombre, capacidad_puestos, tiene_conexion_electrica) -> list[str]:
+        errors = []
+        if not feria:
+            errors.append("El sector debe pertenecer a una feria")
+        if not nombre or not nombre.strip():
+            errors.append("El nombre del sector es obligatorio")
+        if capacidad_puestos is None or capacidad_puestos <= 0:
+            errors.append("La capacidad de puestos del sector debe ser mayor a cero")
+        return errors
+
+    @classmethod
+    def new(cls, feria, nombre, capacidad_puestos, tiene_conexion_electrica=False):
+        errors = cls.validate(feria, nombre, capacidad_puestos, tiene_conexion_electrica)
+        if errors:
+            return None, errors
+        
+        sector = cls.objects.create(
+            feria=feria,
+            nombre=nombre.strip(),
+            capacidad_puestos=capacidad_puestos,
+            tiene_conexion_electrica=tiene_conexion_electrica
+        )
+        return sector, []
+
+    def update(self, feria, nombre, capacidad_puestos, tiene_conexion_electrica) -> list[str]:
+        errors = self.__class__.validate(feria, nombre, capacidad_puestos, tiene_conexion_electrica)
+        if errors:
+            return errors
+            
+        self.feria = feria
+        self.nombre = nombre.strip()
+        self.capacidad_puestos = capacidad_puestos
+        self.tiene_conexion_electrica = tiene_conexion_electrica
+        self.save()
+        return []
