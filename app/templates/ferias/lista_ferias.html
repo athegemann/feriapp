@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="h4">Ferias activas</h2>
-  </div>
+</div>
 
 <div class="card mb-4 bg-light shadow-sm border-0">
     <div class="card-body py-2">
@@ -33,7 +33,7 @@
         <th>Fechas</th>
         <th>Ubicación</th>
         <th>Puestos</th>
-        </tr>
+        <th class="text-end pe-3">Acciones</th> </tr>
     </thead>
     <tbody>
       {% for feria in ferias %}
@@ -45,10 +45,18 @@
         <td>
           <span class="badge bg-light text-dark border">{{ feria.capacidad_puestos }} totales</span>
         </td>
+        <td class="text-end pe-3">
+            <form method="POST" action="{% url 'ferias:clonar_feria' feria.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('¿Estás seguro de clonar esta feria para el próximo año? Se copiarán todos sus sectores.');">
+                    <i class="bi bi-copy"></i> Clonar
+                </button>
+            </form>
+        </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="5" class="text-center text-muted py-4">No hay ferias activas para este filtro.</td>
+        <td colspan="6" class="text-center text-muted py-4">No hay ferias activas para este filtro.</td>
       </tr>
       {% endfor %}
     </tbody>
