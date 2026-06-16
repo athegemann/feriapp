@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db import transaction 
-from .models import Emprendedor, Inscripcion
+from .models import Emprendedor, Inscripcion, Feria
 
 class RegistroEmprendedorForm(forms.ModelForm):
     """Formulario para registrar a un Usuario(django) y un emprendedor"""
@@ -112,3 +112,19 @@ class InscripcionForm(forms.ModelForm):
             'feria': forms.Select(attrs={'class': 'form-select'}),
             'numero_puesto': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'placeholder': 'Número de puesto'}),
         }
+
+class FeriaForm(forms.ModelForm):
+    class Meta:
+        model = Feria
+        # No incluye campos que se calculan o no deberia tocar el usuario al crear
+        fields = ['nombre', 'descripcion', 'categoria', 'fecha_inicio', 'fecha_fin', 'ubicacion', 'capacidad_puestos']
+        widgets = {
+            'fecha_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'fecha_fin': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # clases de Bootstrap a todos los inputs
+        for field in self.fields.values():
+            field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' form-control'

@@ -6,7 +6,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.contrib import messages
 from .models import Emprendedor, Inscripcion
-from .forms import RegistroEmprendedorForm, InscripcionForm
+from .forms import RegistroEmprendedorForm, InscripcionForm, FeriaForm
 from django.views.generic import ListView, TemplateView
 from .models import Feria, Categoria
 
@@ -120,9 +120,43 @@ def cancelar_inscripcion_view(request, pk):
 
     return redirect('ferias:mis_inscripciones')
 
+class NuevaFeriaView(CreateView):
+    model = Feria
+    form_class = FeriaForm
+    template_name = 'ferias/nueva_feria.html' 
+    success_url = reverse_lazy('ferias:home')
+
+    def form_valid(self, form):
+        """
+        Sobreescribimos form_valid para usar el patrón estricto new()
+        en lugar del save() por defecto de Django.
+        """
+        datos = form.cleaned_data
+        
+        # Llamamos al método de clase que programaste
+        feria, errores = Feria.new(
+            nombre=datos['nombre'],
+            descripcion=datos.get('descripcion', ''),
+            categoria=datos['categoria'],
+            fecha_inicio=datos['fecha_inicio'],
+            fecha_fin=datos['fecha_fin'],
+            ubicacion=datos['ubicacion'],
+            capacidad_puestos=datos['capacidad_puestos']
+        )
+
+        if errores:
+            # Si la validación de negocio falla (ej. fechas invertidas)
+            for error in errores:
+                messages.error(self.request, error)
+            return self.form_invalid(form)
+
+        # Si todo sale bien, simula el registro exitoso para la vista
+        self.object = feria
+        messages.success(self.request, "¡La feria se creó exitosamente!")
+        return super().form_valid(form)
+    
 # TODO: implementar las siguientes vistas...
 # class DetalleFeriaView(DetailView): ...
-# class NuevaFeriaView(CreateView): ...
 # class ListaEmprendedoresView(ListView): ...
 # class NuevaInscripcionView(CreateView): ...
 # class CancelarInscripcionView(View): ...
