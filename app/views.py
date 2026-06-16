@@ -136,7 +136,6 @@ class NuevaFeriaView(CreateView):
         # Llamamos al método de clase que programaste
         feria, errores = Feria.new(
             nombre=datos['nombre'],
-            descripcion=datos.get('descripcion', ''),
             categoria=datos['categoria'],
             fecha_inicio=datos['fecha_inicio'],
             fecha_fin=datos['fecha_fin'],

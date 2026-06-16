@@ -3,7 +3,7 @@
 from datetime import date
 from django.test import TestCase
 from django.contrib.auth.models import User
-from app.models import Categoria, Feria, Emprendedor, Inscripcion, Visitante
+from app.models import Categoria, Feria, Emprendedor, Inscripcion, Visitante, Sector
 
 # --- TESTS DEL MODELO CATEGORIA ---
 
@@ -350,3 +350,80 @@ class VisitanteModelTest(TestCase):
         # Verificamos que no se haya guardado el cambio
         visitante2.refresh_from_db()
         self.assertEqual(visitante2.email, "ana@example.com")
+
+# --- TESTS DE SECTOR Y CLONACION (Opcionales 2 y 4) ---
+class SectorYClonacionModelTest(TestCase):
+    
+    def setUp(self):
+        """Preparamos una feria base y un par de sectores para probar la clonación."""
+        self.categoria = Categoria.objects.create(nombre="Tecnología")
+        self.feria_base = Feria.objects.create(
+            nombre="Feria Original",
+            categoria=self.categoria,
+            fecha_inicio=date(2026, 10, 1),
+            fecha_fin=date(2026, 10, 5),
+            ubicacion="Campus Universitario",
+            capacidad_puestos=50
+        )
+        # Creamos los sectores directamente con el método new() que desarrollamos
+        self.sector_a, _ = Sector.new(self.feria_base, "Sector A", 20, True)
+        self.sector_b, _ = Sector.new(self.feria_base, "Sector B", 30, False)
+
+    def test_validate_sector_datos_incorrectos(self):
+        """Verifica que el validate ataje errores como nombres vacíos o capacidades en cero."""
+        errores = Sector.validate(self.feria_base, "", 0, False)
+        self.assertIn("El nombre del sector es obligatorio.", errores)
+        self.assertIn("La capacidad de puestos del sector debe ser mayor a cero.", errores)
+
+    def test_new_y_update_sector_exitoso(self):
+        """Verifica el circuito de creación y actualización del Sector."""
+        # Probar creación
+        sector_nuevo, errores = Sector.new(self.feria_base, "Sector C", 10, True)
+        self.assertEqual(errores, [])
+        self.assertEqual(Sector.objects.count(), 3)
+        
+        # Probar actualización
+        errores_update = sector_nuevo.update(self.feria_base, "Sector C Modificado", 15, False)
+        self.assertEqual(errores_update, [])
+        sector_nuevo.refresh_from_db()
+        self.assertEqual(sector_nuevo.nombre, "Sector C Modificado")
+        self.assertEqual(sector_nuevo.capacidad_puestos, 15)
+
+    def test_clonar_edicion_exitosa(self):
+        """Prueba la deep copy de la Feria y todos sus sectores asociados."""
+        nueva_fecha_inicio = date(2027, 10, 1)
+        nueva_fecha_fin = date(2027, 10, 5)
+        
+        nueva_feria, errores = self.feria_base.clonar_edicion(
+            nueva_fecha_inicio, nueva_fecha_fin, "Feria Clonada"
+        )
+        
+        # Verificamos que la feria clonada exista y no haya errores
+        self.assertEqual(errores, [])
+        self.assertIsNotNone(nueva_feria)
+        self.assertEqual(nueva_feria.nombre, "Feria Clonada")
+        
+        # Verificamos que los sectores también se hayan clonado
+        sectores_clonados = nueva_feria.sectores.all()
+        self.assertEqual(sectores_clonados.count(), 2)
+        
+        # Chequeamos que los datos se copiaron bien pero en instancias distintas
+        nombres_sectores = [s.nombre for s in sectores_clonados]
+        self.assertIn("Sector A", nombres_sectores)
+        self.assertIn("Sector B", nombres_sectores)
+        # El ID del sector clonado tiene que ser distinto al original
+        self.assertNotEqual(self.sector_a.id, sectores_clonados.first().id)
+
+    def test_clonar_edicion_falla_por_fechas_invalidas(self):
+        """Verifica que el clonado se aborte si las reglas de negocio de la feria no se cumplen."""
+        # Intentamos clonar con fecha de fin anterior a la de inicio
+        nueva_fecha_inicio = date(2027, 10, 5)
+        nueva_fecha_fin = date(2027, 10, 1) # Inválido
+        
+        nueva_feria, errores = self.feria_base.clonar_edicion(
+            nueva_fecha_inicio, nueva_fecha_fin
+        )
+        
+        self.assertIsNone(nueva_feria)
+        self.assertTrue(len(errores) > 0)
+        self.assertIn("La fecha de fin no puede ser anterior a la fecha de inicio.", errores)
