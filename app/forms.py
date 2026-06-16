@@ -117,7 +117,7 @@ class FeriaForm(forms.ModelForm):
     class Meta:
         model = Feria
         # No incluye campos que se calculan o no deberia tocar el usuario al crear
-        fields = ['nombre', 'descripcion', 'categoria', 'fecha_inicio', 'fecha_fin', 'ubicacion', 'capacidad_puestos']
+        fields = ['nombre', 'categoria', 'fecha_inicio', 'fecha_fin', 'ubicacion', 'capacidad_puestos']
         widgets = {
             'fecha_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'fecha_fin': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),

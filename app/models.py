@@ -419,11 +419,11 @@ class Sector(models.Model):
     def validate(cls, feria, nombre, capacidad_puestos, tiene_conexion_electrica) -> list[str]:
         errors = []
         if not feria:
-            errors.append("El sector debe pertenecer a una feria")
+            errors.append("El sector debe pertenecer a una feria.")
         if not nombre or not nombre.strip():
-            errors.append("El nombre del sector es obligatorio")
+            errors.append("El nombre del sector es obligatorio.")
         if capacidad_puestos is None or capacidad_puestos <= 0:
-            errors.append("La capacidad de puestos del sector debe ser mayor a cero")
+            errors.append("La capacidad de puestos del sector debe ser mayor a cero.")
         return errors
 
     @classmethod
