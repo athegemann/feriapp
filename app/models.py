@@ -152,6 +152,40 @@ class Feria(models.Model):
         self.capacidad_puestos = capacidad_puestos
         self.save()
         return []
+    
+    def clonar_edicion(self, nueva_fecha_inicio, nueva_fecha_fin, nuevo_nombre=None) -> tuple['Feria' | None, list[str]]:
+        """
+        Opcional 4: Clona la feria actual y todos sus sectores para una nueva edicion
+        Retorna una tupla con la nueva instancia (o None) y la lista de errores
+        """
+        # Si no mandan nombre, le arma uno por defecto
+        nombre_edicion = nuevo_nombre if nuevo_nombre else f"{self.nombre} - Nueva Edición"
+        
+        # 1. Creamos la nueva feria pasando por el filtro de seguridad validate/new
+        nueva_feria, errores_feria = Feria.new(
+            nombre=nombre_edicion,
+            categoria=self.categoria,
+            fecha_inicio=nueva_fecha_inicio,
+            fecha_fin=nueva_fecha_fin,
+            ubicacion=self.ubicacion,
+            capacidad_puestos=self.capacidad_puestos
+        )
+        
+        # Si fallo la validación (ej. fechas al reves), corta aca y devolvemos el error
+        if errores_feria:
+            return None, errores_feria
+            
+        # 2. Si la feria se creo bien, clonamos todos sus sectores asociados
+        # Usa related_name="sectores" que define recien en el modelo Sector
+        for sector in self.sectores.all():
+            Sector.new(
+                feria=nueva_feria,
+                nombre=sector.nombre,
+                capacidad_puestos=sector.capacidad_puestos,
+                tiene_conexion_electrica=sector.tiene_conexion_electrica
+            )
+            
+        return nueva_feria, []
 
 
 class Emprendedor(models.Model):
