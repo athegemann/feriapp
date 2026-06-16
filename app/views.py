@@ -3,12 +3,14 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from .models import Emprendedor, Inscripcion
+from .models import Emprendedor, Inscripcion, Feria
 from .forms import RegistroEmprendedorForm, InscripcionForm, FeriaForm
 from django.views.generic import ListView, TemplateView
 from .models import Feria, Categoria
+from datetime import timedelta
+from django.views import View
 
 
 class HomeView(TemplateView):
@@ -153,6 +155,36 @@ class NuevaFeriaView(CreateView):
         self.object = feria
         messages.success(self.request, "¡La feria se creó exitosamente!")
         return super().form_valid(form)
+
+class ClonarFeriaView(View):
+    """
+    CBV para manejar la acción de clonar una feria.
+    Solo acepta peticiones POST por seguridad.
+    """
+    def post(self, request, pk):
+        # Buscamos la feria original que queremos clonar
+        feria_original = get_object_or_404(Feria, pk=pk)
+        
+        # Para hacer el clon rápido con un solo clic, pateamos las fechas exactamente 1 año (365 días)
+        # Esto automatiza la gestión anual de las ediciones de la municipalidad.
+        nueva_fecha_inicio = feria_original.fecha_inicio + timedelta(days=365)
+        nueva_fecha_fin = feria_original.fecha_fin + timedelta(days=365)
+        
+        # Llamamos a tu método de negocio complejo
+        nueva_feria, errores = feria_original.clonar_edicion(
+            nueva_fecha_inicio, 
+            nueva_fecha_fin
+            # No le pasamos nombre, así el modelo usa el nombre por defecto " - Nueva Edición"
+        )
+        
+        if errores:
+            for error in errores:
+                messages.error(request, error)
+        else:
+            messages.success(request, f"¡Edición clonada con éxito! Se creó: {nueva_feria.nombre}")
+            
+        # Redirigimos a la lista de ferias
+        return redirect('ferias:lista_ferias')
     
 # TODO: implementar las siguientes vistas...
 # class DetalleFeriaView(DetailView): ...
