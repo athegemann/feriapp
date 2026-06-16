@@ -56,7 +56,7 @@ class ListaFeriasView(ListView):
 class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
     template_name = 'ferias/registro_emprendedor.html'
     form_class = RegistroEmprendedorForm
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('ferias:login') #Fix para redirigir al login después del registro
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
 
 #Vista para ver mis inscripciones
@@ -101,7 +101,7 @@ def cancelar_inscripcion_view(request, pk):
     if request.method == "POST" and request.user.is_authenticated:
         try: 
             inscripcion = Inscripcion.objects.get(pk=pk, emprendedor=request.user.emprendedor)
-            
+    
             errors = inscripcion.update(
                 emprendedor=inscripcion.emprendedor,
                 feria=inscripcion.feria,
@@ -109,18 +109,18 @@ def cancelar_inscripcion_view(request, pk):
                 estado='cancelada',
                 registrado_por=inscripcion.registrado_por
             )
-            
+    
             if not errors:
-                messages.success(request, "La inscripción fue cancelada con éxito.")
+                messages.success(request, "La inscripción fue cancelada con exito")
             else:
                 messages.error(request, errors[0])
 
         except Inscripcion.DoesNotExist:
-            messages.error(request, "La inscripción solicitada no existe o no te pertenece.")
+            messages.error(request, "La inscripción solicitada no existe o no te pertenece")
 
     return redirect('ferias:mis_inscripciones')
-    
-# TODO: implementar las siguientes vistas:
+
+# TODO: implementar las siguientes vistas...
 # class DetalleFeriaView(DetailView): ...
 # class NuevaFeriaView(CreateView): ...
 # class ListaEmprendedoresView(ListView): ...

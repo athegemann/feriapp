@@ -271,11 +271,11 @@ class Inscripcion(models.Model):
             if ocupado.exists():
                 errors.append(f"El puesto {numero_puesto} ya está ocupado en esta feria.")
 
-        if estado not in dict(cls.ESTADO_CHOICES):
+        if estado not in dict(cls.ESTADO_Incrip):
             errors.append("El estado especificado no es válido.")
 
         return errors
-   
+
     @classmethod
     def new(cls, emprendedor, feria, numero_puesto, estado='confirmada', registrado_por=None):
         """Genera una nueva inscripción si pasa las validaciones de negocio"""
@@ -304,5 +304,69 @@ class Inscripcion(models.Model):
         self.numero_puesto = numero_puesto
         self.estado = estado
         self.registrado_por = registrado_por
+        self.save()
+        return []
+
+class Visitante(models.Model):
+    """Representa a un visitante registrado para asistir a una feria"""
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="visitante")
+    fecha_registro = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido}"
+    
+    @classmethod
+    def validate(cls, nombre, apellido, email, usuario, instance_id=None) -> list[str]:
+        """Valida los datos del visitante"""
+        errors = []
+
+        if not nombre or not nombre.strip():
+            errors.append("El nombre es obligatorio.")
+
+        if not apellido or not apellido.strip():
+            errors.append("El apellido es obligatorio.")
+
+        if not email or not email.strip():
+            errors.append("El email es obligatorio.")
+        elif cls.objects.filter(email=email).exclude(id=instance_id).exists():
+            errors.append("Ya existe un visitante registrado con este email.")
+            
+        if not usuario:
+            errors.append("El usuario asociado es obligatorio.")
+        elif cls.objects.filter(usuario=usuario).exclude(id=instance_id).exists():
+            errors.append("Este usuario ya esta vinculado a otro visitante.")
+
+        return errors
+    
+    @classmethod
+    def new(cls, nombre, apellido, email, usuario):
+        """Crea un nuevo visitante si los datos son validos"""
+        errors = cls.validate(nombre, apellido, email, usuario)
+
+        if errors:
+            return None, errors
+
+        visitante = cls.objects.create(
+            nombre=nombre.strip(),
+            apellido=apellido.strip(),
+            email=email.strip(),
+            usuario=usuario
+        )
+        return visitante, []
+    
+    def update(self, nombre, apellido, email, usuario) -> list[str]:
+        """Actualiza los datos del visitante si son validos"""
+        errors = self.__class__.validate(nombre, apellido, email, usuario, instance_id=self.id)
+
+        if errors:
+            return errors
+
+        self.nombre = nombre.strip()
+        self.apellido = apellido.strip()
+        self.email = email.strip()
+        self.usuario = usuario
         self.save()
         return []
