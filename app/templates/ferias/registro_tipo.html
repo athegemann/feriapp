@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Elegir Registro{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-8">
+        <div class="card shadow border-0">
+            <div class="card-body p-4 p-md-5 text-center">
+                <h2 class="mb-3">Elige que tipo de perfil quieres crear</h2>
+                <p class="text-muted mb-4">Puedes registrarte como visitante o como emprendedor segun lo que necesites hacer en FeriApp.</p>
+
+                <div class="row g-3 justify-content-center">
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-4 h-100">
+                            <h4 class="mb-2">Visitante</h4>
+                            <p class="text-muted">Para explorar ferias, dejar reseñas y seguir la actividad de los emprendedores.</p>
+                            <a href="{% url 'ferias:registro_visitante' %}" class="btn btn-success w-100">Registrarme como visitante</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-4 h-100">
+                            <h4 class="mb-2">Emprendedor</h4>
+                            <p class="text-muted">Para inscribirte en ferias, gestionar tu emprendimiento y ver las reseñas recibidas.</p>
+                            <a href="{% url 'ferias:registro_emprendedor' %}" class="btn btn-outline-success w-100">Registrarme como emprendedor</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'ferias:login' %}" class="text-decoration-none">Ya tengo cuenta</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
