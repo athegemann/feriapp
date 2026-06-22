@@ -6,6 +6,8 @@ from .models import Feria, Emprendedor, Inscripcion, Categoria, Sector
 # TODO: reemplazar por @admin.register con list_display, list_filter, search_fields
 admin.site.register(Feria)
 
+admin.site.register(Categoria)
+
 @admin.register(Emprendedor)
 class EmprendedorAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'apellido', 'email', 'rubro', 'usuario')
