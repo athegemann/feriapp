@@ -451,3 +451,51 @@ class Sector(models.Model):
         self.tiene_conexion_electrica = tiene_conexion_electrica
         self.save()
         return []
+
+class Resena(models.Model):
+    """Representa una reseña que un visitante deja sobre una feria"""
+    feriante = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    visitante = models.ForeignKey(Visitante, on_delete=models.CASCADE)
+    puntaje = models.PositiveIntegerField()
+    comentario = models.TextField(blank=True, null=True)
+    fecha_creacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reseña de {self.visitante.nombre} para {self.feriante.nombre} - Puntaje: {self.puntaje}"
+
+    @classmethod
+    def validate(cls, feriante, visitante, puntaje) -> list[str]:
+        errors = []
+        if not feriante:
+            errors.append("La reseña debe estar asociada a un emprendedor.")
+        if not visitante:
+            errors.append("La reseña debe estar asociada a un visitante.")
+        if puntaje is None or puntaje < 1 or puntaje > 5:
+            errors.append("El puntaje debe ser un numero entero entre 1 y 5.")
+        return errors
+
+    @classmethod
+    def new(cls, feriante, visitante, puntaje, comentario=""):
+        errors = cls.validate(feriante, visitante, puntaje)
+        if errors:
+            return None, errors
+        
+        resena = cls.objects.create(
+            feriante = feriante,
+            visitante = visitante,
+            puntaje = puntaje,
+            comentario = comentario
+        )
+        return resena, []
+    
+    def update(self, feriante, visitante, puntaje, comentario) -> list[str]:
+        errors = self.__class__.validate(feriante, visitante, puntaje)
+        if errors:
+            return errors
+            
+        self.feriante = feriante
+        self.visitante = visitante
+        self.puntaje = puntaje
+        self.comentario = comentario
+        self.save()
+        return []
