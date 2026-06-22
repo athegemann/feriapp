@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db import transaction 
-from .models import Emprendedor, Inscripcion, Feria
+from .models import Emprendedor, Inscripcion, Feria, Resena
 
 class RegistroEmprendedorForm(forms.ModelForm):
     """Formulario para registrar a un Usuario(django) y un emprendedor"""
@@ -128,3 +128,24 @@ class FeriaForm(forms.ModelForm):
         # clases de Bootstrap a todos los inputs
         for field in self.fields.values():
             field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' form-control'
+
+
+class ResenaForm(forms.ModelForm):
+    class Meta:
+        model = Resena
+        fields = ['feriante', 'puntaje', 'comentario']
+        labels = {
+            'feriante': 'Emprendedor',
+            'puntaje': 'Puntaje',
+            'comentario': 'Comentario',
+        }
+        widgets = {
+            'feriante': forms.Select(attrs={'class': 'form-select'}),
+            'puntaje': forms.Select(choices=[(i, i) for i in range(1, 6)], attrs={'class': 'form-select'}),
+            'comentario': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Cuenta tu experiencia con este emprendedor'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['feriante'].queryset = Emprendedor.objects.all().order_by('nombre', 'apellido')
+        self.fields['feriante'].empty_label = 'Selecciona un emprendedor'
