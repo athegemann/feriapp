@@ -15,24 +15,6 @@
                     <span class="badge bg-success fs-6">{{ rol_perfil }}</span>
                 </div>
 
-                <div class="row g-4 mb-4">
-                    <div class="col-md-6">
-                        <div class="p-3 bg-light rounded-3 h-100">
-                            <h5 class="mb-3">Cuenta</h5>
-                            <p class="mb-2"><strong>Usuario:</strong> {{ perfil_usuario.username }}</p>
-                            <p class="mb-2"><strong>Email:</strong> {{ perfil_usuario.email|default:"No registrado" }}</p>
-                            <p class="mb-0"><strong>Estado:</strong> Activo</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-3 bg-light rounded-3 h-100">
-                            <h5 class="mb-3">Resumen</h5>
-                            <p class="mb-2"><strong>Reseñas:</strong> {{ cantidad_resenas }}</p>
-                            <p class="mb-0"><strong>Perfil:</strong> {{ rol_perfil }}</p>
-                        </div>
-                    </div>
-                </div>
-
                 {% if perfil_emprendedor %}
                     <div class="border rounded-3 p-4 mb-4">
                         <h4 class="mb-3">Datos de emprendedor</h4>
@@ -47,6 +29,11 @@
                                 <p class="mb-2"><strong>Telefono:</strong> {{ perfil_emprendedor.telefono|default:"No registrado" }}</p>
                                 <p class="mb-0"><strong>Usuario asociado:</strong> {{ perfil_emprendedor.usuario.username }}</p>
                             </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{% url 'ferias:mis_resenas' %}" class="btn btn-success">
+                                Ver mis reseñas
+                            </a>
                         </div>
                     </div>
                 {% elif perfil_visitante %}
