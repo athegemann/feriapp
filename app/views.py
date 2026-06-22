@@ -39,12 +39,12 @@ class MiPerfilView(LoginRequiredMixin, TemplateView):
         context['perfil_emprendedor'] = getattr(usuario, 'emprendedor', None)
         context['perfil_visitante'] = getattr(usuario, 'visitante', None)
 
-        if context['perfil_emprendedor']:
-            context['rol_perfil'] = 'Emprendedor'
-            context['cantidad_resenas'] = Resena.objects.filter(feriante=context['perfil_emprendedor']).count()
-        elif context['perfil_visitante']:
+        if context['perfil_visitante']:
             context['rol_perfil'] = 'Visitante'
             context['cantidad_resenas'] = Resena.objects.filter(visitante=context['perfil_visitante']).count()
+        elif context['perfil_emprendedor']:
+            context['rol_perfil'] = 'Emprendedor'
+            context['cantidad_resenas'] = Resena.objects.filter(feriante=context['perfil_emprendedor']).count()
         else:
             context['rol_perfil'] = 'Sin perfil asociado'
             context['cantidad_resenas'] = 0
