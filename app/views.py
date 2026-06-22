@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from .models import Emprendedor, Inscripcion, Feria, Resena
-from .forms import RegistroEmprendedorForm, InscripcionForm, FeriaForm, ResenaForm
+from .forms import RegistroEmprendedorForm, RegistroVisitanteForm, InscripcionForm, FeriaForm, ResenaForm
 from django.views.generic import ListView, TemplateView
 from .models import Feria, Categoria
 from datetime import timedelta
@@ -26,6 +26,34 @@ class HomeView(TemplateView):
         context['ferias_activas'] = Feria.objects.filter(activa=True).count()
         context['total_categorias'] = Categoria.objects.count()
         return context
+
+
+class MiPerfilView(LoginRequiredMixin, TemplateView):
+    template_name = 'ferias/mi_perfil.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+
+        context['perfil_usuario'] = usuario
+        context['perfil_emprendedor'] = getattr(usuario, 'emprendedor', None)
+        context['perfil_visitante'] = getattr(usuario, 'visitante', None)
+
+        if context['perfil_visitante']:
+            context['rol_perfil'] = 'Visitante'
+            context['cantidad_resenas'] = Resena.objects.filter(visitante=context['perfil_visitante']).count()
+        elif context['perfil_emprendedor']:
+            context['rol_perfil'] = 'Emprendedor'
+            context['cantidad_resenas'] = Resena.objects.filter(feriante=context['perfil_emprendedor']).count()
+        else:
+            context['rol_perfil'] = 'Sin perfil asociado'
+            context['cantidad_resenas'] = 0
+
+        return context
+
+
+class RegistroTipoView(TemplateView):
+    template_name = 'ferias/registro_tipo.html'
 
 
 class ListaFeriasView(ListView):
@@ -61,6 +89,13 @@ class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
     form_class = RegistroEmprendedorForm
     success_url = reverse_lazy('ferias:login') #Fix para redirigir al login después del registro
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
+
+
+class RegistroVisitanteView(SuccessMessageMixin, CreateView):
+    template_name = 'ferias/registro_visitante.html'
+    form_class = RegistroVisitanteForm
+    success_url = reverse_lazy('ferias:login')
+    success_message = "Tu perfil de visitante fue creado con exito, ya puedes iniciar sesión."
 
 #Vista para ver mis inscripciones
 class MisInscripcionesView(LoginRequiredMixin, ListView):
