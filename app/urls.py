@@ -21,6 +21,7 @@ urlpatterns = [
 
     # Gestion de Reseñas
     path("resenas/nueva/", views.NuevaResenaView.as_view(), name="nueva_resena"),
+    path("resenas/mis-resenas/", views.MisResenasView.as_view(), name="mis_resenas"),
     
     # Gestión de Ferias (Tu Eje)
     path("ferias/nueva/", views.NuevaFeriaView.as_view(), name="nueva_feria"),

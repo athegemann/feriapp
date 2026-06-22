@@ -188,6 +188,28 @@ class NuevaResenaView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.success(self.request, self.success_message)
         return redirect(self.success_url)
 
+
+class MisResenasView(LoginRequiredMixin, ListView):
+    model = Resena
+    template_name = 'ferias/mis_resenas.html'
+    context_object_name = 'resenas'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            request.user.emprendedor
+        except ObjectDoesNotExist:
+            messages.error(request, "Necesitas tener un perfil de emprendedor para ver tus reseñas.")
+            return redirect('ferias:home')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return (
+            Resena.objects
+            .filter(feriante=self.request.user.emprendedor)
+            .select_related('visitante', 'feriante')
+            .order_by('-fecha_creacion')
+        )
+
 class ClonarFeriaView(View):
     """
     CBV para manejar la acción de clonar una feria.
