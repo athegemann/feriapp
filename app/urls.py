@@ -30,6 +30,7 @@ urlpatterns = [
     
     # Gestión de Ferias (Tu Eje)
     path("ferias/nueva/", views.NuevaFeriaView.as_view(), name="nueva_feria"),
+    path("ferias/<int:pk>/", views.DetalleFeriaView.as_view(), name="detalle_feria"),
     path("ferias/<int:pk>/clonar/", views.ClonarFeriaView.as_view(), name="clonar_feria"),
     
     # TODO: Vistas de Javirulo (Social y Métricas)

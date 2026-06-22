@@ -38,7 +38,11 @@
     <tbody>
       {% for feria in ferias %}
       <tr>
-        <td class="fw-semibold text-primary ps-3">{{ feria.nombre }}</td>
+        <td class="fw-semibold ps-3">
+          <a href="{% url 'ferias:detalle_feria' feria.pk %}" class="text-primary text-decoration-none">
+            {{ feria.nombre }}
+          </a>
+        </td>
         <td><span class="badge bg-secondary">{{ feria.categoria.nombre }}</span></td>
         <td>{{ feria.fecha_inicio|date:"d/m/Y" }} &rarr; {{ feria.fecha_fin|date:"d/m/Y" }}</td>
         <td>{{ feria.ubicacion }}</td>
