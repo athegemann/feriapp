@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db import transaction 
-from .models import Emprendedor, Inscripcion, Feria, Resena
+from .models import Emprendedor, Inscripcion, Feria, Resena, Visitante
 
 class RegistroEmprendedorForm(forms.ModelForm):
     """Formulario para registrar a un Usuario(django) y un emprendedor"""
@@ -102,6 +102,80 @@ class RegistroEmprendedorForm(forms.ModelForm):
                 raise forms.ValidationError(errors[0])
                 
             return emprendedor
+
+
+class RegistroVisitanteForm(forms.ModelForm):
+    """Formulario para registrar a un Usuario(django) y un visitante"""
+
+    username = forms.CharField(
+        max_length=150,
+        label="Nombre de usuario",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Maria2026'})
+    )
+
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Mínimo 8 caracteres'})
+    )
+
+    nombre = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tu nombre'})
+    )
+
+    apellido = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tu apellido'})
+    )
+
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Tu correo@gmail.com'})
+    )
+
+    class Meta:
+        model = Visitante
+        fields = ['nombre', 'apellido', 'email']
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Este nombre de usuario ya está registrado. Ingrese otro.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        nombre = self.cleaned_data.get('nombre', 'temp') or 'temp'
+        apellido = self.cleaned_data.get('apellido', 'temp') or 'temp'
+
+        errors = Visitante.validate(
+            nombre=nombre,
+            apellido=apellido,
+            email=email,
+            usuario=None
+        )
+        for error in errors:
+            if "email" in error.lower():
+                raise forms.ValidationError(error)
+        return email
+
+    def save(self, commit=True):
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                password=self.cleaned_data['password']
+            )
+
+            visitante, errors = Visitante.new(
+                nombre=self.cleaned_data['nombre'],
+                apellido=self.cleaned_data['apellido'],
+                email=self.cleaned_data['email'],
+                usuario=user
+            )
+
+            if errors:
+                raise forms.ValidationError(errors[0])
+
+            return visitante
 
 class InscripcionForm(forms.ModelForm):
     """Formulario para que un emprendedor solicite un puesto"""
