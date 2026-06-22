@@ -13,9 +13,11 @@ urlpatterns = [
     path("ferias/", views.ListaFeriasView.as_view(), name="lista_ferias"),
 
     # Autenticación (Login, Logout y formulario de registros)
+    path("registro/", views.RegistroTipoView.as_view(), name="registro_tipo"),
     path("login/", auth_views.LoginView.as_view(template_name="registro/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("registro/", views.RegistroEmprendedorView.as_view(), name="registro_emprendedor"),
+    path("registro/emprendedor/", views.RegistroEmprendedorView.as_view(), name="registro_emprendedor"),
+    path("registro/visitante/", views.RegistroVisitanteView.as_view(), name="registro_visitante"),
 
     # Gestión de Inscripciones
     path("inscripciones/mis-inscripciones/", views.MisInscripcionesView.as_view(), name="mis_inscripciones"),
