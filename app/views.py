@@ -3,10 +3,11 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from .models import Emprendedor, Inscripcion, Feria
-from .forms import RegistroEmprendedorForm, InscripcionForm, FeriaForm
+from .models import Emprendedor, Inscripcion, Feria, Resena
+from .forms import RegistroEmprendedorForm, InscripcionForm, FeriaForm, ResenaForm
 from django.views.generic import ListView, TemplateView
 from .models import Feria, Categoria
 from datetime import timedelta
@@ -155,6 +156,37 @@ class NuevaFeriaView(CreateView):
         self.object = feria
         messages.success(self.request, "¡La feria se creó exitosamente!")
         return super().form_valid(form)
+
+
+class NuevaResenaView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    template_name = 'ferias/nueva_resena.html'
+    form_class = ResenaForm
+    success_url = reverse_lazy('ferias:lista_ferias')
+    success_message = "Tu reseña fue publicada con exito."
+
+    def form_valid(self, form):
+        try:
+            visitante = self.request.user.visitante
+        except ObjectDoesNotExist:
+            form.add_error(None, "Necesitas tener un perfil de visitante para dejar una reseña.")
+            return self.form_invalid(form)
+
+        datos = form.cleaned_data
+        resena, errors = Resena.new(
+            feriante=datos['feriante'],
+            visitante=visitante,
+            puntaje=datos['puntaje'],
+            comentario=datos.get('comentario', '')
+        )
+
+        if errors:
+            for error in errors:
+                messages.error(self.request, error)
+            return self.form_invalid(form)
+
+        self.object = resena
+        messages.success(self.request, self.success_message)
+        return redirect(self.success_url)
 
 class ClonarFeriaView(View):
     """

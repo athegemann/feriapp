@@ -18,6 +18,9 @@ urlpatterns = [
     path("inscripciones/mis-inscripciones/", views.MisInscripcionesView.as_view(), name="mis_inscripciones"),
     path("inscripciones/nueva/", views.NuevaInscripcionView.as_view(), name="nueva_inscripcion"),
     path("inscripciones/<int:pk>/cancelar/", views.cancelar_inscripcion_view, name="cancelar_inscripcion"),
+
+    # Gestion de Reseñas
+    path("resenas/nueva/", views.NuevaResenaView.as_view(), name="nueva_resena"),
     
     # Gestión de Ferias (Tu Eje)
     path("ferias/nueva/", views.NuevaFeriaView.as_view(), name="nueva_feria"),
