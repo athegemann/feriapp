@@ -1,15 +1,13 @@
 """Vistas públicas de la aplicación de ferias."""
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from .models import Emprendedor, Inscripcion, Feria, Resena
+from .models import Emprendedor, Inscripcion, Feria, Resena, Categoria
 from .forms import RegistroEmprendedorForm, RegistroVisitanteForm, InscripcionForm, FeriaForm, ResenaForm
-from django.views.generic import ListView, TemplateView
-from .models import Feria, Categoria
 from datetime import timedelta
 from django.views import View
 
@@ -81,6 +79,40 @@ class ListaFeriasView(ListView):
         context['categorias'] = Categoria.objects.all()
         # Envio el ID actual para saber que botón marcar como "activo" en el frontend
         context['categoria_actual'] = self.request.GET.get('categoria', '')
+        return context
+
+
+class DetalleFeriaView(DetailView):
+    model = Feria
+    template_name = 'ferias/detalle_feria.html'
+    context_object_name = 'feria'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        feria = self.object
+        inscripciones_confirmadas = (
+            Inscripcion.objects
+            .filter(feria=feria, estado='confirmada')
+            .select_related('emprendedor')
+            .order_by('numero_puesto', 'emprendedor__apellido', 'emprendedor__nombre')
+        )
+        total_ocupados = inscripciones_confirmadas.count()
+        capacidad = feria.capacidad_puestos or 0
+        ocupacion_porcentaje = int((total_ocupados / capacidad) * 100) if capacidad else 0
+        emprendedores_unicos = []
+        vistos = set()
+        for inscripcion in inscripciones_confirmadas:
+            if inscripcion.emprendedor_id in vistos:
+                continue
+            vistos.add(inscripcion.emprendedor_id)
+            emprendedores_unicos.append(inscripcion.emprendedor)
+
+        context['inscripciones_confirmadas'] = inscripciones_confirmadas
+        context['emprendedores'] = emprendedores_unicos
+        context['total_ocupados'] = total_ocupados
+        context['ocupacion_porcentaje'] = min(ocupacion_porcentaje, 100)
+        context['puestos_disponibles'] = feria.puestos_disponibles()
+        context['capacidad_total'] = capacidad
         return context
 
 #Vista para registrar un nuevo emprendedor
