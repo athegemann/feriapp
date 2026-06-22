@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Reseña{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">Dejar una Reseña</h3>
+                <p class="text-muted text-center mb-4">Elige al emprendedor, asigna un puntaje y cuenta tu experiencia.</p>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="mt-4 row g-2">
+                        <div class="col-12 col-sm-6">
+                            <button type="submit" class="btn btn-success w-100">Publicar reseña</button>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <a href="{% url 'ferias:lista_ferias' %}" class="btn btn-secondary w-100">Volver</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
