@@ -29,7 +29,7 @@ class HomeView(TemplateView):
         return context
 
 
-class MiPerfilView(LoginRequiredMixin, TemplateView):
+class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
     template_name = 'ferias/perfil_usuario.html'
 
     def get_context_data(self, **kwargs):
@@ -67,7 +67,7 @@ class MiPerfilView(LoginRequiredMixin, TemplateView):
 
 class PerfilPropioRedirectView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        return redirect('ferias:mi_perfil', pk=request.user.pk)
+        return redirect('ferias:perfil_usuario', pk=request.user.pk)
 
 
 class RegistroTipoView(TemplateView):

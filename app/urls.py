@@ -8,8 +8,7 @@ app_name = "ferias"
 urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("accounts/profile/", views.PerfilPropioRedirectView.as_view()),
-    path("accounts/profile/<int:pk>/", views.MiPerfilView.as_view(), name="mi_perfil"),
-    path("mi-perfil/", views.PerfilPropioRedirectView.as_view()),
+    path("accounts/profile/<int:pk>/", views.PerfilUsuarioView.as_view(), name="mi_perfil"),
     path("ferias/", views.ListaFeriasView.as_view(), name="lista_ferias"),
 
     # Autenticación (Login, Logout y formulario de registros)
