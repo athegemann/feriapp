@@ -1,15 +1,14 @@
 """Definición de rutas públicas de la aplicación."""
 from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
-from django.views.generic import RedirectView
 from . import views
 
 app_name = "ferias"
 
 urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
-    path("accounts/profile/", views.MiPerfilView.as_view(), name="mi_perfil"),
-    path("mi-perfil/", RedirectView.as_view(pattern_name="ferias:mi_perfil", permanent=False)),
+    path("accounts/profile/", views.PerfilPropioRedirectView.as_view()),
+    path("accounts/profile/<int:pk>/", views.PerfilUsuarioView.as_view(), name="mi_perfil"),
     path("ferias/", views.ListaFeriasView.as_view(), name="lista_ferias"),
 
     # Autenticación (Login, Logout y formulario de registros)

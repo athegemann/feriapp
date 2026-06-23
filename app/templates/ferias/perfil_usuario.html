@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Mi Perfil{% endblock %}
+{% block title %}{% if es_perfil_propio %}Mi Perfil{% else %}Perfil de {{ perfil_usuario.username }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-4">
@@ -9,8 +9,16 @@
             <div class="card-body p-4 p-md-5">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
                     <div>
-                        <h2 class="mb-1">Mi perfil</h2>
-                        <p class="text-muted mb-0">Informacion de tu cuenta y perfil asociado.</p>
+                        <h2 class="mb-1">
+                            {% if es_perfil_propio %}Mi perfil{% else %}Perfil de {{ perfil_usuario.username }}{% endif %}
+                        </h2>
+                        <p class="text-muted mb-0">
+                            {% if es_perfil_propio %}
+                                Informacion de tu cuenta y perfil asociado.
+                            {% else %}
+                                Informacion de la cuenta y perfil asociado.
+                            {% endif %}
+                        </p>
                     </div>
                     <span class="badge bg-success fs-6">{{ rol_perfil }}</span>
                 </div>
@@ -45,15 +53,21 @@
                                 <p class="mb-0"><strong>Usuario asociado:</strong> {{ perfil_emprendedor.usuario.username }}</p>
                             </div>
                         </div>
+                        {% if es_perfil_propio %}
                         <div class="mt-4">
                             <a href="{% url 'ferias:mis_resenas' %}" class="btn btn-success">
                                 Ver mis reseñas
                             </a>
                         </div>
+                        {% endif %}
                     </div>
                 {% else %}
                     <div class="alert alert-warning">
-                        No tienes un perfil asociado en el sistema.
+                        {% if es_perfil_propio %}
+                            No tienes un perfil asociado en el sistema.
+                        {% else %}
+                            Este usuario no tiene un perfil asociado en el sistema.
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

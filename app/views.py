@@ -1,5 +1,6 @@
 """Vistas públicas de la aplicación de ferias."""
 from django.urls import reverse_lazy
+from django.contrib.auth.models import User
 from django.views.generic import CreateView, DetailView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -26,16 +27,28 @@ class HomeView(TemplateView):
         return context
 
 
-class MiPerfilView(LoginRequiredMixin, TemplateView):
-    template_name = 'ferias/mi_perfil.html'
+class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
+    template_name = 'ferias/perfil_usuario.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        usuario = self.request.user
+        usuario = get_object_or_404(User, pk=self.kwargs['pk'])
+        es_perfil_propio = self.request.user.pk == usuario.pk
+
+        try:
+            perfil_emprendedor = usuario.emprendedor
+        except ObjectDoesNotExist:
+            perfil_emprendedor = None
+
+        try:
+            perfil_visitante = usuario.visitante
+        except ObjectDoesNotExist:
+            perfil_visitante = None
 
         context['perfil_usuario'] = usuario
-        context['perfil_emprendedor'] = getattr(usuario, 'emprendedor', None)
-        context['perfil_visitante'] = getattr(usuario, 'visitante', None)
+        context['perfil_emprendedor'] = perfil_emprendedor
+        context['perfil_visitante'] = perfil_visitante
+        context['es_perfil_propio'] = es_perfil_propio
 
         if context['perfil_visitante']:
             context['rol_perfil'] = 'Visitante'
@@ -48,6 +61,11 @@ class MiPerfilView(LoginRequiredMixin, TemplateView):
             context['cantidad_resenas'] = 0
 
         return context
+
+
+class PerfilPropioRedirectView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return redirect('ferias:perfil_usuario', pk=request.user.pk)
 
 
 class RegistroTipoView(TemplateView):
