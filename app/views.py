@@ -311,6 +311,33 @@ class MisResenasView(LoginRequiredMixin, ListView):
             .order_by('-fecha_creacion')
         )
 
+class ListaResenasView(TemplateView):
+    template_name = 'ferias/lista_resenas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario_objetivo = get_object_or_404(User, pk=self.kwargs['pk'])
+        
+        context['es_perfil_propio'] = (self.request.user.is_authenticated and self.request.user.pk == usuario_objetivo.pk)
+
+        try:
+            perfil = usuario_objetivo.emprendedor
+            context['tipo_perfil'] = 'emprendedor'
+            context['perfil'] = perfil
+            context['resenas'] = Resena.objects.filter(feriante=perfil).select_related('visitante').order_by('-fecha_creacion')
+        except ObjectDoesNotExist:
+            try:
+                perfil = usuario_objetivo.visitante
+                context['tipo_perfil'] = 'visitante'
+                context['perfil'] = perfil
+                context['resenas'] = Resena.objects.filter(visitante=perfil).select_related('feriante').order_by('-fecha_creacion')
+            except ObjectDoesNotExist:
+                context['tipo_perfil'] = None
+                context['perfil'] = None
+                context['resenas'] = []
+
+        return context
+
 class ClonarFeriaView(View):
     """
     CBV para manejar la acción de clonar una feria.

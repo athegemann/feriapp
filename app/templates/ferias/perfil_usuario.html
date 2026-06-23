@@ -95,12 +95,9 @@
                             </div>
                             
                             <div>
-                                {% if es_perfil_propio %}
-                                    <a href="{% url 'ferias:mis_resenas' %}" class="btn btn-outline-success w-100">Ver todas mis reseñas</a>
-                                {% else %}
-                                    <!-- Importante: Tendrás que crear la URL y la Vista pública para esto, temporalmente usa un # -->
-                                    <a href="#" class="btn btn-outline-success w-100">Ver todas las reseñas de {{ perfil_emprendedor.nombre }}</a>
-                                {% endif %}
+                                <a href="{% url 'ferias:lista_resenas' pk=perfil_usuario.pk %}" class="btn btn-outline-success w-100">
+                                    {% if es_perfil_propio %}Ver todas mis reseñas{% else %}Ver todas las reseñas de {{ perfil_emprendedor.nombre }}{% endif %}
+                                </a>
                             </div>
                         {% else %}
                             <p class="text-muted small">Este emprendedor aun no ha recibido reseñas.</p>
