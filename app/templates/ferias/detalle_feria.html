@@ -77,12 +77,16 @@
     </div>
     <div class="table-responsive">
       <table class="table align-middle mb-0">
+        <!-- Modifica el <thead> para agregar la columna de acciones -->
         <thead class="table-light">
           <tr>
             <th>Puesto</th>
             <th>Emprendedor</th>
             <th>Rubro</th>
             <th>Contacto</th>
+            {% if visitante_actual %}
+                <th class="text-end">Acciones</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -100,10 +104,17 @@
                   <span class="text-muted">Sin telefono</span>
                 {% endif %}
               </td>
+              {% if visitante_actual %}
+                <td class="text-end">
+                    <a href="{% url 'ferias:nueva_resena' %}?emprendedor={{ inscripcion.emprendedor.id }}" class="btn btn-sm btn-outline-success">
+                        Dejar Reseña
+                    </a>
+                </td>
+              {% endif %}
             </tr>
           {% empty %}
             <tr>
-              <td colspan="4" class="text-center text-muted py-4">No hay emprendedores ni puestos ocupados.</td>
+              <td colspan="5" class="text-center text-muted py-4">No hay emprendedores ni puestos ocupados.</td>
             </tr>
           {% endfor %}
         </tbody>

@@ -30,7 +30,6 @@
                             <div class="col-md-6">
                                 <p class="mb-2"><strong>Nombre:</strong> {{ perfil_visitante.nombre }}</p>
                                 <p class="mb-2"><strong>Apellido:</strong> {{ perfil_visitante.apellido }}</p>
-                                <p class="mb-0"><strong>Email:</strong> {{ perfil_visitante.email }}</p>
                             </div>
                             <div class="col-md-6">
                                 <p class="mb-2"><strong>Usuario asociado:</strong> {{ perfil_visitante.usuario.username }}</p>
@@ -75,7 +74,14 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">Ultimas Reseñas</h5>
-                            <span class="badge bg-secondary">{{ cantidad_resenas }} en total</span>
+                            <div>
+                                {% if visitante_actual and not es_perfil_propio %}
+                                    <a href="{% url 'ferias:nueva_resena' %}?emprendedor={{ perfil_emprendedor.id }}" class="btn btn-sm btn-success me-2">
+                                        Dejar Reseña
+                                    </a>
+                                {% endif %}
+                                <span class="badge bg-secondary">{{ cantidad_resenas }} en total</span>
+                            </div>
                         </div>
                         
                         {% if ultimas_resenas %}
