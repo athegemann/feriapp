@@ -37,6 +37,14 @@ class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
         usuario = get_object_or_404(User, pk=self.kwargs['pk'])
         es_perfil_propio = self.request.user.pk == usuario.pk
 
+        visitante_actual = None
+        if self.request.user.is_authenticated:
+            try:
+                visitante_actual = self.request.user.visitante
+            except ObjectDoesNotExist:
+                pass
+        context['visitante_actual'] = visitante_actual
+
         try:
             perfil_emprendedor = usuario.emprendedor
         except ObjectDoesNotExist:
@@ -124,6 +132,15 @@ class DetalleFeriaView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        visitante_actual = None
+        if self.request.user.is_authenticated:
+            try:
+                visitante_actual = self.request.user.visitante
+            except ObjectDoesNotExist:
+                pass
+        context['visitante_actual'] = visitante_actual
+
         feria = self.object
         inscripciones_confirmadas = (
             Inscripcion.objects
