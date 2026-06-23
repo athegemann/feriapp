@@ -7,8 +7,8 @@ app_name = "ferias"
 
 urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
-    path("accounts/profile/", views.PerfilPropioRedirectView.as_view()),
-    path("accounts/profile/<int:pk>/", views.PerfilUsuarioView.as_view(), name="mi_perfil"),
+    path("accounts/profile/", views.PerfilPropioRedirectView.as_view(), name="perfil_propio"),
+    path("accounts/profile/<int:pk>/", views.PerfilUsuarioView.as_view(), name="perfil_usuario"),
     path("ferias/", views.ListaFeriasView.as_view(), name="lista_ferias"),
 
     # Autenticación (Login, Logout y formulario de registros)
@@ -25,7 +25,7 @@ urlpatterns = [
 
     # Gestion de Reseñas
     path("resenas/nueva/", views.NuevaResenaView.as_view(), name="nueva_resena"),
-    path("resenas/mis-resenas/", views.MisResenasView.as_view(), name="mis_resenas"),
+    path("resenas/<int:pk>/", views.ListaResenasView.as_view(), name="lista_resenas"),
     
     # Gestión de Ferias (Tu Eje)
     path("ferias/nueva/", views.NuevaFeriaView.as_view(), name="nueva_feria"),

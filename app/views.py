@@ -1,5 +1,6 @@
 """Vistas públicas de la aplicación de ferias."""
 from django.urls import reverse_lazy
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.views.generic import CreateView, DetailView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,6 +12,7 @@ from .models import Emprendedor, Inscripcion, Feria, Resena, Categoria
 from .forms import RegistroEmprendedorForm, RegistroVisitanteForm, InscripcionForm, FeriaForm, ResenaForm
 from datetime import timedelta
 from django.views import View
+from django.utils import timezone
 
 
 class HomeView(TemplateView):
@@ -55,7 +57,22 @@ class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
             context['cantidad_resenas'] = Resena.objects.filter(visitante=context['perfil_visitante']).count()
         elif context['perfil_emprendedor']:
             context['rol_perfil'] = 'Emprendedor'
-            context['cantidad_resenas'] = Resena.objects.filter(feriante=context['perfil_emprendedor']).count()
+            
+            resenas = Resena.objects.filter(feriante=context['perfil_emprendedor']).order_by('-fecha_creacion')
+            context['cantidad_resenas'] = resenas.count()
+            context['ultimas_resenas'] = resenas[:5]
+            
+            hoy = timezone.now().date()
+            context['proximas_inscripciones'] = (
+                Inscripcion.objects
+                .filter(
+                    emprendedor=context['perfil_emprendedor'],
+                    feria__fecha_inicio__gte=hoy,
+                    estado='confirmada'
+                )
+                .select_related('feria')
+                .order_by('feria__fecha_inicio')
+            )
         else:
             context['rol_perfil'] = 'Sin perfil asociado'
             context['cantidad_resenas'] = 0
@@ -137,8 +154,23 @@ class DetalleFeriaView(DetailView):
 class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
     template_name = 'ferias/registro_emprendedor.html'
     form_class = RegistroEmprendedorForm
-    success_url = reverse_lazy('ferias:login') #Fix para redirigir al login después del registro
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
+
+    def form_valid(self, form):
+        self.object = form.save()
+        usuario = self.object.usuario
+        usuario_autenticado = authenticate(
+            self.request,
+            username=usuario.username,
+            password=form.cleaned_data['password'],
+        )
+
+        if usuario_autenticado is not None:
+            login(self.request, usuario_autenticado)
+
+        messages.success(self.request, self.success_message)
+        return redirect('ferias:perfil_usuario', pk=usuario.pk)
+
 
 
 class RegistroVisitanteView(SuccessMessageMixin, CreateView):
@@ -146,6 +178,22 @@ class RegistroVisitanteView(SuccessMessageMixin, CreateView):
     form_class = RegistroVisitanteForm
     success_url = reverse_lazy('ferias:login')
     success_message = "Tu perfil de visitante fue creado con exito, ya puedes iniciar sesión."
+
+    def form_valid(self, form):
+        self.object = form.save()
+        usuario = self.object.usuario
+        usuario_autenticado = authenticate(
+            self.request,
+            username=usuario.username,
+            password=form.cleaned_data['password'],
+        )
+
+        if usuario_autenticado is not None:
+            login(self.request, usuario_autenticado)
+
+        messages.success(self.request, self.success_message)
+        return redirect('ferias:perfil_usuario', pk=usuario.pk)
+
 
 #Vista para ver mis inscripciones
 class MisInscripcionesView(LoginRequiredMixin, ListView):
@@ -273,27 +321,32 @@ class NuevaResenaView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.success(self.request, self.success_message)
         return redirect(self.success_url)
 
+class ListaResenasView(TemplateView):
+    template_name = 'ferias/lista_resenas.html'
 
-class MisResenasView(LoginRequiredMixin, ListView):
-    model = Resena
-    template_name = 'ferias/mis_resenas.html'
-    context_object_name = 'resenas'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario_objetivo = get_object_or_404(User, pk=self.kwargs['pk'])
+        
+        context['es_perfil_propio'] = (self.request.user.is_authenticated and self.request.user.pk == usuario_objetivo.pk)
 
-    def dispatch(self, request, *args, **kwargs):
         try:
-            request.user.emprendedor
+            perfil = usuario_objetivo.emprendedor
+            context['tipo_perfil'] = 'emprendedor'
+            context['perfil'] = perfil
+            context['resenas'] = Resena.objects.filter(feriante=perfil).select_related('visitante').order_by('-fecha_creacion')
         except ObjectDoesNotExist:
-            messages.error(request, "Necesitas tener un perfil de emprendedor para ver tus reseñas.")
-            return redirect('ferias:home')
-        return super().dispatch(request, *args, **kwargs)
+            try:
+                perfil = usuario_objetivo.visitante
+                context['tipo_perfil'] = 'visitante'
+                context['perfil'] = perfil
+                context['resenas'] = Resena.objects.filter(visitante=perfil).select_related('feriante').order_by('-fecha_creacion')
+            except ObjectDoesNotExist:
+                context['tipo_perfil'] = None
+                context['perfil'] = None
+                context['resenas'] = []
 
-    def get_queryset(self):
-        return (
-            Resena.objects
-            .filter(feriante=self.request.user.emprendedor)
-            .select_related('visitante', 'feriante')
-            .order_by('-fecha_creacion')
-        )
+        return context
 
 class ClonarFeriaView(View):
     """
