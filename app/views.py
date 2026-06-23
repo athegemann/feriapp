@@ -11,6 +11,7 @@ from .models import Emprendedor, Inscripcion, Feria, Resena, Categoria
 from .forms import RegistroEmprendedorForm, RegistroVisitanteForm, InscripcionForm, FeriaForm, ResenaForm
 from datetime import timedelta
 from django.views import View
+from django.utils import timezone
 
 
 class HomeView(TemplateView):
@@ -55,7 +56,22 @@ class PerfilUsuarioView(LoginRequiredMixin, TemplateView):
             context['cantidad_resenas'] = Resena.objects.filter(visitante=context['perfil_visitante']).count()
         elif context['perfil_emprendedor']:
             context['rol_perfil'] = 'Emprendedor'
-            context['cantidad_resenas'] = Resena.objects.filter(feriante=context['perfil_emprendedor']).count()
+            
+            resenas = Resena.objects.filter(feriante=context['perfil_emprendedor']).order_by('-fecha_creacion')
+            context['cantidad_resenas'] = resenas.count()
+            context['ultimas_resenas'] = resenas[:5]
+            
+            hoy = timezone.now().date()
+            context['proximas_inscripciones'] = (
+                Inscripcion.objects
+                .filter(
+                    emprendedor=context['perfil_emprendedor'],
+                    feria__fecha_inicio__gte=hoy,
+                    estado='confirmada'
+                )
+                .select_related('feria')
+                .order_by('feria__fecha_inicio')
+            )
         else:
             context['rol_perfil'] = 'Sin perfil asociado'
             context['cantidad_resenas'] = 0

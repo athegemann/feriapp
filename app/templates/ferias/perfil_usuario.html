@@ -45,20 +45,65 @@
                             <div class="col-md-6">
                                 <p class="mb-2"><strong>Nombre:</strong> {{ perfil_emprendedor.nombre }}</p>
                                 <p class="mb-2"><strong>Apellido:</strong> {{ perfil_emprendedor.apellido }}</p>
-                                <p class="mb-0"><strong>Rubro:</strong> {{ perfil_emprendedor.rubro }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p class="mb-2"><strong>Email:</strong> {{ perfil_emprendedor.email }}</p>
+                                <p class="mb-0"><strong>Rubro:</strong> {{ perfil_emprendedor.rubro }}</p>
                                 <p class="mb-2"><strong>Telefono:</strong> {{ perfil_emprendedor.telefono|default:"No registrado" }}</p>
-                                <p class="mb-0"><strong>Usuario asociado:</strong> {{ perfil_emprendedor.usuario.username }}</p>
                             </div>
                         </div>
-                        {% if es_perfil_propio %}
-                        <div class="mt-4">
-                            <a href="{% url 'ferias:mis_resenas' %}" class="btn btn-success">
-                                Ver mis reseñas
-                            </a>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Proximos Eventos</h5>
+                        {% if proximas_inscripciones %}
+                            <div class="list-group mb-4">
+                                {% for inscripcion in proximas_inscripciones %}
+                                    <a href="{% url 'ferias:detalle_feria' pk=inscripcion.feria.pk %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 fw-bold">{{ inscripcion.feria.nombre }}</h6>
+                                            <small class="text-muted">{{ inscripcion.feria.fecha_inicio|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <p class="mb-1 small text-muted">Ubicacion: {{ inscripcion.feria.ubicacion }} | Puesto asignado: <strong>{{ inscripcion.numero_puesto }}</strong></p>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted small mb-4">No hay inscripciones a eventos futuros.</p>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Ultimas Reseñas</h5>
+                            <span class="badge bg-secondary">{{ cantidad_resenas }} en total</span>
                         </div>
+                        
+                        {% if ultimas_resenas %}
+                            <div class="list-group mb-4">
+                                {% for resena in ultimas_resenas %}
+                                    <div class="list-group-item border-0 border-bottom px-0">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <strong class="mb-1">{{ resena.visitante.nombre }} {{ resena.visitante.apellido }}</strong>
+                                            <span class="badge bg-success rounded-pill align-self-start">{{ resena.puntaje }} / 5</span>
+                                        </div>
+                                        {% if resena.comentario %}
+                                            <p class="mb-1 mt-2 small">{{ resena.comentario }}</p>
+                                        {% endif %}
+                                        <small class="text-muted">{{ resena.fecha_creacion|date:"d/m/Y" }}</small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div>
+                                {% if es_perfil_propio %}
+                                    <a href="{% url 'ferias:mis_resenas' %}" class="btn btn-outline-success w-100">Ver todas mis reseñas</a>
+                                {% else %}
+                                    <!-- Importante: Tendrás que crear la URL y la Vista pública para esto, temporalmente usa un # -->
+                                    <a href="#" class="btn btn-outline-success w-100">Ver todas las reseñas de {{ perfil_emprendedor.nombre }}</a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">Este emprendedor aun no ha recibido reseñas.</p>
                         {% endif %}
                     </div>
                 {% else %}
