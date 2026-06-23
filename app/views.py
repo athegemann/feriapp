@@ -1,5 +1,6 @@
 """Vistas públicas de la aplicación de ferias."""
 from django.urls import reverse_lazy
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.views.generic import CreateView, DetailView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -153,8 +154,23 @@ class DetalleFeriaView(DetailView):
 class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
     template_name = 'ferias/registro_emprendedor.html'
     form_class = RegistroEmprendedorForm
-    success_url = reverse_lazy('ferias:login') #Fix para redirigir al login después del registro
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
+
+    def form_valid(self, form):
+        self.object = form.save()
+        usuario = self.object.usuario
+        usuario_autenticado = authenticate(
+            self.request,
+            username=usuario.username,
+            password=form.cleaned_data['password'],
+        )
+
+        if usuario_autenticado is not None:
+            login(self.request, usuario_autenticado)
+
+        messages.success(self.request, self.success_message)
+        return redirect('ferias:perfil_usuario', pk=usuario.pk)
+
 
 
 class RegistroVisitanteView(SuccessMessageMixin, CreateView):
@@ -162,6 +178,22 @@ class RegistroVisitanteView(SuccessMessageMixin, CreateView):
     form_class = RegistroVisitanteForm
     success_url = reverse_lazy('ferias:login')
     success_message = "Tu perfil de visitante fue creado con exito, ya puedes iniciar sesión."
+
+    def form_valid(self, form):
+        self.object = form.save()
+        usuario = self.object.usuario
+        usuario_autenticado = authenticate(
+            self.request,
+            username=usuario.username,
+            password=form.cleaned_data['password'],
+        )
+
+        if usuario_autenticado is not None:
+            login(self.request, usuario_autenticado)
+
+        messages.success(self.request, self.success_message)
+        return redirect('ferias:perfil_usuario', pk=usuario.pk)
+
 
 #Vista para ver mis inscripciones
 class MisInscripcionesView(LoginRequiredMixin, ListView):
@@ -288,28 +320,6 @@ class NuevaResenaView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         self.object = resena
         messages.success(self.request, self.success_message)
         return redirect(self.success_url)
-
-
-class MisResenasView(LoginRequiredMixin, ListView):
-    model = Resena
-    template_name = 'ferias/mis_resenas.html'
-    context_object_name = 'resenas'
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            request.user.emprendedor
-        except ObjectDoesNotExist:
-            messages.error(request, "Necesitas tener un perfil de emprendedor para ver tus reseñas.")
-            return redirect('ferias:home')
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return (
-            Resena.objects
-            .filter(feriante=self.request.user.emprendedor)
-            .select_related('visitante', 'feriante')
-            .order_by('-fecha_creacion')
-        )
 
 class ListaResenasView(TemplateView):
     template_name = 'ferias/lista_resenas.html'
