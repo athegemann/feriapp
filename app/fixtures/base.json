@@ -1,0 +1,128 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "username": "juan_emprendedor",
+            "email": "juan@mielesdelsur.com",
+            "is_active": true
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 2,
+        "fields": {
+            "username": "maria_visitante",
+            "email": "maria@correo.com",
+            "is_active": true
+        }
+    },
+    {
+        "model": "app.categoria",
+        "pk": 1,
+        "fields": {
+            "nombre": "Gastronomía Local",
+            "descripcion": "Comidas típicas, conservas y bebidas artesanales."
+        }
+    },
+    {
+        "model": "app.categoria",
+        "pk": 2,
+        "fields": {
+            "nombre": "Artesanías",
+            "descripcion": "Productos hechos a mano, tejidos, cerámica y madera."
+        }
+    },
+    {
+        "model": "app.feria",
+        "pk": 1,
+        "fields": {
+            "nombre": "Feria de Invierno Ushuaia 2026",
+            "categoria": 1,
+            "fecha_inicio": "2026-07-10",
+            "fecha_fin": "2026-07-15",
+            "ubicacion": "Paseo de las Rosas",
+            "capacidad_puestos": 50,
+            "activa": true
+        }
+    },
+    {
+        "model": "app.feria",
+        "pk": 2,
+        "fields": {
+            "nombre": "Mercado de Artesanos",
+            "categoria": 2,
+            "fecha_inicio": "2026-08-01",
+            "fecha_fin": "2026-08-31",
+            "ubicacion": "Plaza Cívica",
+            "capacidad_puestos": 20,
+            "activa": true
+        }
+    },
+    {
+        "model": "app.sector",
+        "pk": 1,
+        "fields": {
+            "feria": 1,
+            "nombre": "Patio de Comidas Calientes",
+            "capacidad_puestos": 15,
+            "tiene_conexion_electrica": true
+        }
+    },
+    {
+        "model": "app.sector",
+        "pk": 2,
+        "fields": {
+            "feria": 1,
+            "nombre": "Sector de Conservas",
+            "capacidad_puestos": 35,
+            "tiene_conexion_electrica": false
+        }
+    },
+    {
+        "model": "app.emprendedor",
+        "pk": 1,
+        "fields": {
+            "nombre": "Juan",
+            "apellido": "Pérez",
+            "email": "juan@mielesdelsur.com",
+            "rubro": "Apicultura y Conservas",
+            "telefono": "+542901555555",
+            "usuario": 1
+        }
+    },
+    {
+        "model": "app.visitante",
+        "pk": 1,
+        "fields": {
+            "nombre": "María",
+            "apellido": "González",
+            "email": "maria@correo.com",
+            "usuario": 2,
+            "fecha_registro": "2026-06-28"
+        }
+    },
+    {
+        "model": "app.inscripcion",
+        "pk": 1,
+        "fields": {
+            "emprendedor": 1,
+            "feria": 1,
+            "numero_puesto": 12,
+            "fecha_inscripcion": "2026-06-28",
+            "estado": "confirmada",
+            "registrado_por": 1
+        }
+    },
+    {
+        "model": "app.resena",
+        "pk": 1,
+        "fields": {
+            "feriante": 1,
+            "visitante": 1,
+            "puntaje": 5,
+            "comentario": "Excelente calidad de los productos, la miel es increíble. Muy buena atención en el puesto.",
+            "fecha_creacion": "2026-07-12"
+        }
+    }
+]
