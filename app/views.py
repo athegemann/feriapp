@@ -2,8 +2,8 @@
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.views.generic import CreateView, DetailView, ListView, TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, get_object_or_404
@@ -14,6 +14,29 @@ from datetime import timedelta
 from django.views import View
 from django.utils import timezone
 
+class EmprendedorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def handle_no_permission(self): 
+        if self.request.user.is_authenticated:
+            messages.error(
+                self.request, 
+                "Acceso denegado: El panel de administración o las cuentas de Organizador no pueden gestionar inscripciones de feriantes."
+            )
+            return redirect('ferias:home')
+        return super().handle_no_permission()
+    
+class OrganizadorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        # Da True si el usuario NO es un emprendedor (es decir, es un Organizador/Admin)
+        return not hasattr(self.request.user, 'emprendedor')
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated:
+            messages.error(
+                self.request, 
+                "Acceso denegado: El listado general de emprendedores es de uso exclusivo para Organizadores Municipales."
+            )
+            return redirect('ferias:home')
+        return super().handle_no_permission()
 
 class HomeView(TemplateView):
     """Vista de inicio. Por ahora vacía — completar con estadísticas."""
@@ -171,6 +194,7 @@ class DetalleFeriaView(DetailView):
 class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
     template_name = 'ferias/registro_emprendedor.html'
     form_class = RegistroEmprendedorForm
+    success_url = reverse_lazy('login') #Fix para redirigir al login después del registro
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
 
     def form_valid(self, form):
@@ -213,7 +237,7 @@ class RegistroVisitanteView(SuccessMessageMixin, CreateView):
 
 
 #Vista para ver mis inscripciones
-class MisInscripcionesView(LoginRequiredMixin, ListView):
+class MisInscripcionesView(EmprendedorRequiredMixin, ListView):
     model = Inscripcion
     template_name = 'ferias/mis_inscripciones.html'
     context_object_name = 'inscripciones'
@@ -222,7 +246,7 @@ class MisInscripcionesView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Inscripcion.objects.filter(emprendedor=self.request.user.emprendedor)
     
-class NuevaInscripcionView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class NuevaInscripcionView(EmprendedorRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = 'ferias/nueva_inscripcion.html'
     form_class = InscripcionForm
     success_url = reverse_lazy('ferias:mis_inscripciones')
@@ -250,11 +274,10 @@ class NuevaInscripcionView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.success(self.request, self.success_message)
         return redirect(self.success_url)
     
-def cancelar_inscripcion_view(request, pk):
-    if request.method == "POST" and request.user.is_authenticated:
+class CancelarInscripcionView(EmprendedorRequiredMixin, View):
+    def post(self, request, pk):
         try: 
             inscripcion = Inscripcion.objects.get(pk=pk, emprendedor=request.user.emprendedor)
-    
             errors = inscripcion.update(
                 emprendedor=inscripcion.emprendedor,
                 feria=inscripcion.feria,
@@ -262,16 +285,20 @@ def cancelar_inscripcion_view(request, pk):
                 estado='cancelada',
                 registrado_por=inscripcion.registrado_por
             )
-    
             if not errors:
-                messages.success(request, "La inscripción fue cancelada con exito")
+                messages.success(request, "La inscripción fue cancelada con éxito.")
             else:
                 messages.error(request, errors[0])
-
         except Inscripcion.DoesNotExist:
-            messages.error(request, "La inscripción solicitada no existe o no te pertenece")
+            messages.error(request, "La inscripción solicitada no existe o no te pertenece.")
+        return redirect('ferias:mis_inscripciones')
 
-    return redirect('ferias:mis_inscripciones')
+class ListaEmprendedoresView(OrganizadorRequiredMixin, ListView):
+    model = Emprendedor
+    template_name = 'ferias/lista_emprendedores.html'
+    context_object_name = 'emprendedores'
+    # Apareceran ordenamos alfabéticamente por apellido y nombre usando el ORM nativo
+    queryset = Emprendedor.objects.all().order_by('apellido', 'nombre')
 
 class NuevaFeriaView(CreateView):
     model = Feria

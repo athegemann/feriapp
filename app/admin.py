@@ -13,6 +13,17 @@ class EmprendedorAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'apellido', 'email', 'rubro', 'usuario')
     list_filter = ('rubro',)
     search_fields = ('nombre', 'apellido', 'email', 'rubro')
+    fieldsets = (
+        ('Información Personal', {
+            'fields': ('nombre', 'apellido', 'email', 'telefono')
+        }),
+        ('Datos de Negocio', {
+            'fields': ('rubro',)
+        }),
+        ('Credenciales de Acceso', {
+            'fields': ('usuario',),
+        }),
+    )
 
 @admin.register(Inscripcion)
 class InscripcionAdmin(admin.ModelAdmin):

@@ -21,6 +21,13 @@
           </li>
           
           {% if user.is_authenticated %}
+            {% if not user.emprendedor %}
+              <li class="nav-item">
+                <a class="nav-link text-warning fw-semibold" href="{% url 'ferias:lista_emprendedores' %}">Panel Emprendedores</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'ferias:mis_inscripciones' %}">Mis Inscripciones</a>
               {% if user.is_staff or user.is_superuser %}
               <li class="nav-item">
                   <a class="nav-link" href="/admin/" target="_blank"><i class="bi bi-gear-fill"></i> Admin</a>
@@ -30,11 +37,21 @@
                   <span class="nav-link text-light fw-semibold ms-2">Hola, <a href="{% url 'ferias:perfil_usuario' user.pk %}" class="text-light text-decoration-underline">{{ user.username }}</a></span>
               </li>
               <li class="nav-item">
-                  <form action="{% url 'ferias:logout' %}" method="post" class="d-inline">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-outline-light btn-sm ms-3">Salir</button>
-                  </form>
+                <a class="nav-link" href="{% url 'ferias:nueva_inscripcion' %}">Inscribirme</a>
               </li>
+            {% endif %}
+
+            <li class="nav-item ms-lg-3 me-lg-2">
+              <span class="navbar-text text-white">
+                ¡Hola, <strong>{{ user.username }}</strong>!
+              </span>
+            </li>
+            <li class="nav-item">
+              <form action="{% url 'ferias:logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-light ms-lg-2">Salir</button>
+              </form>
+            </li>
           {% else %}
               <li class="nav-item ms-2">
                   <a class="nav-link" href="{% url 'ferias:login' %}">Iniciar Sesión</a>

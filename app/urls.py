@@ -21,18 +21,16 @@ urlpatterns = [
     # Gestión de Inscripciones
     path("inscripciones/mis-inscripciones/", views.MisInscripcionesView.as_view(), name="mis_inscripciones"),
     path("inscripciones/nueva/", views.NuevaInscripcionView.as_view(), name="nueva_inscripcion"),
-    path("inscripciones/<int:pk>/cancelar/", views.cancelar_inscripcion_view, name="cancelar_inscripcion"),
+    path("inscripciones/<int:pk>/cancelar/", views.CancelarInscripcionView.as_view(), name="cancelar_inscripcion"),
+    
+    path("emprendedores/", views.ListaEmprendedoresView.as_view(), name="lista_emprendedores"),
 
     # Gestion de Reseñas
     path("resenas/nueva/", views.NuevaResenaView.as_view(), name="nueva_resena"),
     path("resenas/<int:pk>/", views.ListaResenasView.as_view(), name="lista_resenas"),
     
-    # Gestión de Ferias (Tu Eje)
+    # Gestión de Ferias
     path("ferias/nueva/", views.NuevaFeriaView.as_view(), name="nueva_feria"),
     path("ferias/<int:pk>/", views.DetalleFeriaView.as_view(), name="detalle_feria"),
     path("ferias/<int:pk>/clonar/", views.ClonarFeriaView.as_view(), name="clonar_feria"),
-    
-    # TODO: Vistas de Javirulo (Social y Métricas)
-    # path("ferias/<int:pk>/", views.DetalleFeriaView.as_view(), name="detalle_feria"),
-    # path("emprendedores/", views.ListaEmprendedoresView.as_view(), name="lista_emprendedores"),
 ]
