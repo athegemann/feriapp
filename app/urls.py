@@ -17,7 +17,9 @@ urlpatterns = [
     # Gestión de Inscripciones
     path("inscripciones/mis-inscripciones/", views.MisInscripcionesView.as_view(), name="mis_inscripciones"),
     path("inscripciones/nueva/", views.NuevaInscripcionView.as_view(), name="nueva_inscripcion"),
-    path("inscripciones/<int:pk>/cancelar/", views.cancelar_inscripcion_view, name="cancelar_inscripcion")
+    path("inscripciones/<int:pk>/cancelar/", views.CancelarInscripcionView.as_view(), name="cancelar_inscripcion"),
+    
+    path("emprendedores/", views.ListaEmprendedoresView.as_view(), name="lista_emprendedores"),
     # TODO:
     # path("ferias/<int:pk>/", views.DetalleFeriaView.as_view(), name="detalle_feria"),
     # path("ferias/nueva/", views.NuevaFeriaView.as_view(), name="nueva_feria"),

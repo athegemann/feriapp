@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Listado de Emprendedores - FeriApp{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center my-4">
+    <h2>📋 Registro de Emprendedores Locales</h2>
+    <span class="badge bg-success p-2 fs-6">Total: {{ emprendedores|length }} registrados</span>
+</div>
+<div class="card shadow">
+    <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Apellido y Nombre</th>
+                    <th>Rubro Comercial</th>
+                    <th>Correo Electrónico</th>
+                    <th>Teléfono de Contacto</th>
+                    <th>Usuario Asociado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emprendedor in emprendedores %}
+                    <tr>
+                        <td><strong>{{ emprendedor.apellido }}, {{ emprendedor.nombre }}</strong></td>
+                        <td>
+                            <span class="badge bg-secondary px-3 py-2">{{ emprendedor.rubro }}</span>
+                        </td>
+                        <td><a href="mailto:{{ emprendedor.email }}" class="text-decoration-none text-success">{{ emprendedor.email }}</a></td>
+                        <td>
+                            {% if emprendedor.telefono %}
+                                {{ Glen_emprendedor.telefono }}
+                            {% else %}
+                                <span class="text-muted small"><em>No especificado</em></span>
+                            {% endif %}
+                        </td>
+                        <td><code class="text-dark">@{{ emprendedor.usuario.username }}</code></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <p class="fs-5 mb-0">No hay ningún emprendedor registrado en el sistema todavía.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="mt-4">
+    <a href="{% url 'ferias:home' %}" class="btn btn-secondary px-4">Volver al Inicio</a>
+</div>
+{% endblock %}
