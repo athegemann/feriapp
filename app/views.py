@@ -14,8 +14,12 @@ from datetime import timedelta
 from django.views import View
 from django.utils import timezone
 
-class EmprendedorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    def handle_no_permission(self): 
+class EmprendedorRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
+    def test_func(self):
+        """Verifica de forma estricta si el usuario logueado posee un perfil de feriante."""
+        return hasattr(self.request.user, 'emprendedor')
+
+    def handle_no_permission(self):
         if self.request.user.is_authenticated:
             messages.error(
                 self.request, 
@@ -24,16 +28,15 @@ class EmprendedorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return redirect('ferias:home')
         return super().handle_no_permission()
     
-class OrganizadorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+class OrganizadorRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
     def test_func(self):
-        # Da True si el usuario NO es un emprendedor (es decir, es un Organizador/Admin)
         return not hasattr(self.request.user, 'emprendedor')
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
             messages.error(
                 self.request, 
-                "Acceso denegado: El listado general de emprendedores es de uso exclusivo para Organizadores Municipales."
+                "Acceso denegado: El listado general de emprendedores es de uso exclusivo para Administradores."
             )
             return redirect('ferias:home')
         return super().handle_no_permission()
@@ -120,7 +123,7 @@ class RegistroTipoView(TemplateView):
     template_name = 'ferias/registro_tipo.html'
 
 
-class ListaFeriasView(ListView):
+class ListaFeriasView(OrganizadorRequiredMixin, ListView):
     """Lista todas las ferias activas."""
 
     model = Feria
