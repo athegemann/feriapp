@@ -293,7 +293,7 @@ class CancelarInscripcionView(EmprendedorRequiredMixin, View):
             messages.error(request, "La inscripción solicitada no existe o no te pertenece.")
         return redirect('ferias:mis_inscripciones')
 
-class ListaEmprendedoresView(OrganizadorRequiredMixin, ListView):
+class ListaEmprendedoresView(ListView):
     model = Emprendedor
     template_name = 'ferias/lista_emprendedores.html'
     context_object_name = 'emprendedores'
