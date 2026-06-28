@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ feria.nombre }} — FeriApp{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <p class="text-uppercase text-muted small mb-1">Detalle de feria</p>
+    <h1 class="h3 mb-1">{{ feria.nombre }}</h1>
+    <p class="text-muted mb-0">{{ feria.categoria.nombre }} · {{ feria.ubicacion }}</p>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body p-4">
+        <h2 class="h5 mb-3">Informacion general</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 h-100">
+              <small class="text-muted d-block">Categoria</small>
+              <strong>{{ feria.categoria.nombre }}</strong>
+              {% if feria.categoria.descripcion %}
+                <div class="text-muted mt-1">{{ feria.categoria.descripcion }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 h-100">
+              <small class="text-muted d-block">Fechas</small>
+              <strong>{{ feria.fecha_inicio|date:"d/m/Y" }} → {{ feria.fecha_fin|date:"d/m/Y" }}</strong>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 h-100">
+              <small class="text-muted d-block">Ubicacion</small>
+              <strong>{{ feria.ubicacion }}</strong>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 h-100">
+              <small class="text-muted d-block">Estado</small>
+              <strong>{% if feria.activa %}Activa{% else %}Inactiva{% endif %}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body p-4">
+        <h2 class="h5 mb-3">Ocupacion</h2>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted">Puestos ocupados</span>
+          <strong>{{ total_ocupados }} / {{ capacidad_total }}</strong>
+        </div>
+        <div class="progress" style="height: 16px;">
+          <div class="progress-bar bg-success" role="progressbar" style="width: {{ ocupacion_porcentaje }}%;" aria-valuenow="{{ ocupacion_porcentaje }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2 small text-muted">
+          <span>{{ ocupacion_porcentaje }}% ocupado</span>
+          <span>{{ puestos_disponibles }} disponibles</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h5 mb-0">Emprendedores y puestos</h2>
+      <span class="badge bg-primary">{{ inscripciones_confirmadas|length }} puestos ocupados</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <!-- Modifica el <thead> para agregar la columna de acciones -->
+        <thead class="table-light">
+          <tr>
+            <th>Puesto</th>
+            <th>Emprendedor</th>
+            <th>Rubro</th>
+            <th>Contacto</th>
+            {% if visitante_actual %}
+                <th class="text-end">Acciones</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for inscripcion in inscripciones_confirmadas %}
+            <tr>
+              <td>{{ inscripcion.numero_puesto }}</td>
+              <td>
+                <div class="fw-semibold"><a href="{% url 'ferias:perfil_usuario' pk=inscripcion.emprendedor.usuario.pk %}">{{ inscripcion.emprendedor.nombre }} {{ inscripcion.emprendedor.apellido }}</a></div>
+              </td>
+              <td>{{ inscripcion.emprendedor.rubro }}</td>
+              <td>
+                {% if inscripcion.emprendedor.telefono %}
+                  {{ inscripcion.emprendedor.telefono }}
+                {% else %}
+                  <span class="text-muted">Sin telefono</span>
+                {% endif %}
+              </td>
+              {% if visitante_actual %}
+                <td class="text-end">
+                    <a href="{% url 'ferias:nueva_resena' %}?emprendedor={{ inscripcion.emprendedor.id }}" class="btn btn-sm btn-outline-success">
+                        Dejar Reseña
+                    </a>
+                </td>
+              {% endif %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No hay emprendedores ni puestos ocupados.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

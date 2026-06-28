@@ -152,6 +152,40 @@ class Feria(models.Model):
         self.capacidad_puestos = capacidad_puestos
         self.save()
         return []
+    
+    def clonar_edicion(self, nueva_fecha_inicio, nueva_fecha_fin, nuevo_nombre=None) -> tuple['Feria' | None, list[str]]:
+        """
+        Opcional 4: Clona la feria actual y todos sus sectores para una nueva edicion
+        Retorna una tupla con la nueva instancia (o None) y la lista de errores
+        """
+        # Si no mandan nombre, le arma uno por defecto
+        nombre_edicion = nuevo_nombre if nuevo_nombre else f"{self.nombre} - Nueva Edición"
+        
+        # 1. Creamos la nueva feria pasando por el filtro de seguridad validate/new
+        nueva_feria, errores_feria = Feria.new(
+            nombre=nombre_edicion,
+            categoria=self.categoria,
+            fecha_inicio=nueva_fecha_inicio,
+            fecha_fin=nueva_fecha_fin,
+            ubicacion=self.ubicacion,
+            capacidad_puestos=self.capacidad_puestos
+        )
+        
+        # Si fallo la validación (ej. fechas al reves), corta aca y devolvemos el error
+        if errores_feria:
+            return None, errores_feria
+            
+        # 2. Si la feria se creo bien, clonamos todos sus sectores asociados
+        # Usa related_name="sectores" que define recien en el modelo Sector
+        for sector in self.sectores.all():
+            Sector.new(
+                feria=nueva_feria,
+                nombre=sector.nombre,
+                capacidad_puestos=sector.capacidad_puestos,
+                tiene_conexion_electrica=sector.tiene_conexion_electrica
+            )
+            
+        return nueva_feria, []
 
 
 class Emprendedor(models.Model):
@@ -368,5 +402,100 @@ class Visitante(models.Model):
         self.apellido = apellido.strip()
         self.email = email.strip()
         self.usuario = usuario
+        self.save()
+        return []
+    
+class Sector(models.Model):
+    """Representa una subdivisión física dentro de una feria"""
+    feria = models.ForeignKey(Feria, on_delete=models.CASCADE, related_name="sectores")
+    nombre = models.CharField(max_length=100)
+    capacidad_puestos = models.PositiveIntegerField()
+    tiene_conexion_electrica = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Sector {self.nombre} - {self.feria.nombre}"
+
+    @classmethod
+    def validate(cls, feria, nombre, capacidad_puestos, tiene_conexion_electrica) -> list[str]:
+        errors = []
+        if not feria:
+            errors.append("El sector debe pertenecer a una feria.")
+        if not nombre or not nombre.strip():
+            errors.append("El nombre del sector es obligatorio.")
+        if capacidad_puestos is None or capacidad_puestos <= 0:
+            errors.append("La capacidad de puestos del sector debe ser mayor a cero.")
+        return errors
+
+    @classmethod
+    def new(cls, feria, nombre, capacidad_puestos, tiene_conexion_electrica=False):
+        errors = cls.validate(feria, nombre, capacidad_puestos, tiene_conexion_electrica)
+        if errors:
+            return None, errors
+        
+        sector = cls.objects.create(
+            feria=feria,
+            nombre=nombre.strip(),
+            capacidad_puestos=capacidad_puestos,
+            tiene_conexion_electrica=tiene_conexion_electrica
+        )
+        return sector, []
+
+    def update(self, feria, nombre, capacidad_puestos, tiene_conexion_electrica) -> list[str]:
+        errors = self.__class__.validate(feria, nombre, capacidad_puestos, tiene_conexion_electrica)
+        if errors:
+            return errors
+            
+        self.feria = feria
+        self.nombre = nombre.strip()
+        self.capacidad_puestos = capacidad_puestos
+        self.tiene_conexion_electrica = tiene_conexion_electrica
+        self.save()
+        return []
+
+class Resena(models.Model):
+    """Representa una reseña que un visitante deja sobre una feria"""
+    feriante = models.ForeignKey(Emprendedor, on_delete=models.CASCADE)
+    visitante = models.ForeignKey(Visitante, on_delete=models.CASCADE)
+    puntaje = models.PositiveIntegerField()
+    comentario = models.TextField(blank=True, null=True)
+    fecha_creacion = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reseña de {self.visitante.nombre} para {self.feriante.nombre} - Puntaje: {self.puntaje}"
+
+    @classmethod
+    def validate(cls, feriante, visitante, puntaje) -> list[str]:
+        errors = []
+        if not feriante:
+            errors.append("La reseña debe estar asociada a un emprendedor.")
+        if not visitante:
+            errors.append("La reseña debe estar asociada a un visitante.")
+        if puntaje is None or puntaje < 1 or puntaje > 5:
+            errors.append("El puntaje debe ser un numero entero entre 1 y 5.")
+        return errors
+
+    @classmethod
+    def new(cls, feriante, visitante, puntaje, comentario=""):
+        errors = cls.validate(feriante, visitante, puntaje)
+        if errors:
+            return None, errors
+        
+        resena = cls.objects.create(
+            feriante = feriante,
+            visitante = visitante,
+            puntaje = puntaje,
+            comentario = comentario
+        )
+        return resena, []
+    
+    def update(self, feriante, visitante, puntaje, comentario) -> list[str]:
+        errors = self.__class__.validate(feriante, visitante, puntaje)
+        if errors:
+            return errors
+            
+        self.feriante = feriante
+        self.visitante = visitante
+        self.puntaje = puntaje
+        self.comentario = comentario
         self.save()
         return []

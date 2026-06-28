@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if es_perfil_propio %}Mi Perfil{% else %}Perfil de {{ perfil_usuario.username }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8 col-xl-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <h2 class="mb-1">
+                            {% if es_perfil_propio %}Mi perfil{% else %}Perfil de {{ perfil_usuario.username }}{% endif %}
+                        </h2>
+                        <p class="text-muted mb-0">
+                            {% if es_perfil_propio %}
+                                Informacion de tu cuenta y perfil asociado.
+                            {% else %}
+                                Informacion de la cuenta y perfil asociado.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <span class="badge bg-success fs-6">{{ rol_perfil }}</span>
+                </div>
+
+                {% if perfil_visitante %}
+                    <div class="border rounded-3 p-4 mb-4">
+                        <h4 class="mb-3">Datos de visitante</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Nombre:</strong> {{ perfil_visitante.nombre }}</p>
+                                <p class="mb-2"><strong>Apellido:</strong> {{ perfil_visitante.apellido }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Usuario asociado:</strong> {{ perfil_visitante.usuario.username }}</p>
+                                <p class="mb-0"><strong>Fecha de registro:</strong> {{ perfil_visitante.fecha_registro|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% elif perfil_emprendedor %}
+                    <div class="border rounded-3 p-4 mb-4">
+                        <h4 class="mb-3">Datos de emprendedor</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Nombre:</strong> {{ perfil_emprendedor.nombre }}</p>
+                                <p class="mb-2"><strong>Apellido:</strong> {{ perfil_emprendedor.apellido }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-0"><strong>Rubro:</strong> {{ perfil_emprendedor.rubro }}</p>
+                                <p class="mb-2"><strong>Telefono:</strong> {{ perfil_emprendedor.telefono|default:"No registrado" }}</p>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Proximos Eventos</h5>
+                        {% if proximas_inscripciones %}
+                            <div class="list-group mb-4">
+                                {% for inscripcion in proximas_inscripciones %}
+                                    <a href="{% url 'ferias:detalle_feria' pk=inscripcion.feria.pk %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 fw-bold">{{ inscripcion.feria.nombre }}</h6>
+                                            <small class="text-muted">{{ inscripcion.feria.fecha_inicio|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <p class="mb-1 small text-muted">Ubicacion: {{ inscripcion.feria.ubicacion }} | Puesto asignado: <strong>{{ inscripcion.numero_puesto }}</strong></p>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted small mb-4">No hay inscripciones a eventos futuros.</p>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Ultimas Reseñas</h5>
+                            <div>
+                                {% if visitante_actual and not es_perfil_propio %}
+                                    <a href="{% url 'ferias:nueva_resena' %}?emprendedor={{ perfil_emprendedor.id }}" class="btn btn-sm btn-success me-2">
+                                        Dejar Reseña
+                                    </a>
+                                {% endif %}
+                                <span class="badge bg-secondary">{{ cantidad_resenas }} en total</span>
+                            </div>
+                        </div>
+                        
+                        {% if ultimas_resenas %}
+                            <div class="list-group mb-4">
+                                {% for resena in ultimas_resenas %}
+                                    <div class="list-group-item border-0 border-bottom px-0">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <strong class="mb-1">{{ resena.visitante.nombre }} {{ resena.visitante.apellido }}</strong>
+                                            <span class="badge bg-success rounded-pill align-self-start">{{ resena.puntaje }} / 5</span>
+                                        </div>
+                                        {% if resena.comentario %}
+                                            <p class="mb-1 mt-2 small">{{ resena.comentario }}</p>
+                                        {% endif %}
+                                        <small class="text-muted">{{ resena.fecha_creacion|date:"d/m/Y" }}</small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div>
+                                <a href="{% url 'ferias:lista_resenas' pk=perfil_usuario.pk %}" class="btn btn-outline-success w-100">
+                                    {% if es_perfil_propio %}Ver todas mis reseñas{% else %}Ver todas las reseñas de {{ perfil_emprendedor.nombre }}{% endif %}
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">Este emprendedor aun no ha recibido reseñas.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        {% if es_perfil_propio %}
+                            No tienes un perfil asociado en el sistema.
+                        {% else %}
+                            Este usuario no tiene un perfil asociado en el sistema.
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

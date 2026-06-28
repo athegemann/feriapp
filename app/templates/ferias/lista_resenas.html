@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if es_perfil_propio %}Mis Reseñas{% else %}Reseñas de {{ perfil.nombre }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center my-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">
+            {% if es_perfil_propio %}
+                {% if tipo_perfil == 'emprendedor' %}Mis reseñas recibidas{% else %}Mis reseñas escritas{% endif %}
+            {% else %}
+                {% if tipo_perfil == 'emprendedor' %}Reseñas recibidas por {{ perfil.nombre }}{% else %}Reseñas escritas por {{ perfil.nombre }}{% endif %}
+            {% endif %}
+        </h2>
+        <p class="text-muted mb-0">
+            {% if es_perfil_propio %}
+                {% if tipo_perfil == 'emprendedor' %}
+                    Opiniones que visitantes dejaron sobre tu emprendimiento.
+                {% else %}
+                    Reseñas que dejaste a distintos emprendedores.
+                {% endif %}
+            {% else %}
+                {% if tipo_perfil == 'emprendedor' %}
+                    Opiniones que visitantes dejaron sobre este emprendimiento.
+                {% else %}
+                    Reseñas que este visitante dejo a distintos emprendedores.
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        {% if tipo_perfil == 'emprendedor' %}
+                            <th>Visitante</th>
+                        {% else %}
+                            <th>Emprendedor</th>
+                        {% endif %}
+                        <th>Puntaje</th>
+                        <th>Comentario</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resena in resenas %}
+                        <tr>
+                            <td>
+                                {% if tipo_perfil == 'emprendedor' %}
+                                    <strong>{{ resena.visitante.nombre }} {{ resena.visitante.apellido }}</strong>
+                                    <div class="text-muted small">{{ resena.visitante.email }}</div>
+                                {% else %}
+                                    <strong>{{ resena.feriante.nombre }} {{ resena.feriante.apellido }}</strong>
+                                    <div class="text-muted small">{{ resena.feriante.rubro }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-success fs-6">{{ resena.puntaje }}/5</span>
+                            </td>
+                            <td>
+                                {% if resena.comentario %}
+                                    {{ resena.comentario }}
+                                {% else %}
+                                    <span class="text-muted">Sin comentarios</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ resena.fecha_creacion|date:"d/m/Y" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                {% if es_perfil_propio %}
+                                    {% if tipo_perfil == 'emprendedor' %}
+                                        Todavia no has recibido reseñas.
+                                    {% else %}
+                                        Todavia no has escrito ninguna reseña.
+                                    {% endif %}
+                                {% else %}
+                                    {% if tipo_perfil == 'emprendedor' %}
+                                        Este emprendedor todavia no ha recibido reseñas.
+                                    {% else %}
+                                        Este visitante todavia no ha escrito reseñas.
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

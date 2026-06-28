@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Visitante{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+        <div class="card shadow mb-5">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">Registro de Nuevo Visitante</h2>
+                <hr>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="mt-4 row">
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-success w-100 py-2">Crear mi Perfil</button>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'ferias:registro_tipo' %}" class="btn btn-secondary w-100 py-2">Cancelar</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
