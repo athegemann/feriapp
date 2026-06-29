@@ -34,7 +34,7 @@ class OrganizadorRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
-            messages.error(
+            messages.error( 
                 self.request, 
                 "Acceso denegado: El listado general de emprendedores es de uso exclusivo para Administradores."
             )
