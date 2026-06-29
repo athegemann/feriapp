@@ -254,7 +254,7 @@ class Emprendedor(models.Model):
         self.email = email.strip()
         self.rubro = rubro.strip()
         self.usuario = usuario
-        self.telefono = telefono.strip() if telefono else None
+        telefono=telefono.strip() if telefono is not None else ""
         self.save()
         return []
     
