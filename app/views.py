@@ -332,7 +332,7 @@ class NuevaFeriaView(CreateView):
         # Si todo sale bien, simula el registro exitoso para la vista
         self.object = feria
         messages.success(self.request, "¡La feria se creó exitosamente!")
-        return super().form_valid(form)
+        return redirect(self.success_url)
 
 
 class NuevaResenaView(LoginRequiredMixin, SuccessMessageMixin, CreateView):

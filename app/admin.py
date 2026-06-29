@@ -4,9 +4,16 @@ from django.contrib import admin
 from .models import Feria, Emprendedor, Inscripcion, Categoria, Sector
 
 # TODO: reemplazar por @admin.register con list_display, list_filter, search_fields
-admin.site.register(Feria)
+@admin.register(Feria)
+class FeriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'categoria', 'fecha_inicio', 'fecha_fin', 'ubicacion', 'capacidad_puestos', 'activa')
+    list_filter = ('activa', 'categoria', 'fecha_inicio')
+    search_fields = ('nombre', 'ubicacion')
 
-admin.site.register(Categoria)
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre')
+    search_fields = ('nombre',)
 
 @admin.register(Emprendedor)
 class EmprendedorAdmin(admin.ModelAdmin):

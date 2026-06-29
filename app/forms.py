@@ -190,11 +190,10 @@ class InscripcionForm(forms.ModelForm):
 class FeriaForm(forms.ModelForm):
     class Meta:
         model = Feria
-        # No incluye campos que se calculan o no deberia tocar el usuario al crear
         fields = ['nombre', 'categoria', 'fecha_inicio', 'fecha_fin', 'ubicacion', 'capacidad_puestos']
         widgets = {
-            'fecha_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
-            'fecha_fin': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
         }
     
     def __init__(self, *args, **kwargs):
