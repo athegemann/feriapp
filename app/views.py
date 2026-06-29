@@ -123,7 +123,7 @@ class RegistroTipoView(TemplateView):
     template_name = 'ferias/registro_tipo.html'
 
 
-class ListaFeriasView(OrganizadorRequiredMixin, ListView):
+class ListaFeriasView(ListView):
     """Lista todas las ferias activas."""
 
     model = Feria

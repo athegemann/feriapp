@@ -56,12 +56,14 @@
           <span class="badge bg-light text-dark border">{{ feria.capacidad_puestos }} totales</span>
         </td>
         <td class="text-end pe-3">
-            <form method="POST" action="{% url 'ferias:clonar_feria' feria.pk %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('¿Estás seguro de clonar esta feria para el próximo año? Se copiarán todos sus sectores.');">
-                    <i class="bi bi-copy"></i> Clonar
-                </button>
-            </form>
+          {% if user.is_authenticated and user.is_staff %}
+          <form method="POST" action="{% url 'ferias:clonar_feria' feria.pk %}" class="d-inline">
+             {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('¿Estás seguro de clonar esta feria para el próximo año?');">
+                 Clonar
+             </button>
+         </form>
+          {% endif %}
         </td>
       </tr>
       {% empty %}
