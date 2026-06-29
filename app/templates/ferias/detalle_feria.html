@@ -94,7 +94,7 @@
             <tr>
               <td>{{ inscripcion.numero_puesto }}</td>
               <td>
-                <div class="fw-semibold"><a href="{% url 'ferias:perfil_usuario' pk=inscripcion.emprendedor.usuario.pk %}">{{ inscripcion.emprendedor.nombre }} {{ inscripcion.emprendedor.apellido }}</a></div>
+                <div class="fw-semibold"><a href="{% url 'ferias:perfil_usuario' pk=inscripcion.emprendedor.usuario.pk %}" class="text-primary text-decoration-none">{{ inscripcion.emprendedor.nombre }} {{ inscripcion.emprendedor.apellido }}</a></div>
               </td>
               <td>{{ inscripcion.emprendedor.rubro }}</td>
               <td>

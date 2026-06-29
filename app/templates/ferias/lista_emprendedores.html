@@ -12,19 +12,20 @@
                 <tr>
                     <th>Apellido y Nombre</th>
                     <th>Rubro Comercial</th>
-                    <th>Correo Electrónico</th>
                     <th>Teléfono de Contacto</th>
-                    <th>Usuario Asociado</th>
                 </tr>
             </thead>
             <tbody>
                 {% for emprendedor in emprendedores %}
                     <tr>
-                        <td><strong>{{ emprendedor.apellido }}, {{ emprendedor.nombre }}</strong></td>
+                        <td class="fw-semibold ps-3">
+                            <a href="{% url 'ferias:perfil_usuario' emprendedor.pk %}" class="text-primary text-decoration-none">
+                                {{ emprendedor.apellido }}, {{ emprendedor.nombre }}
+                            </a>
+                        </td>
                         <td>
                             <span class="badge bg-secondary px-3 py-2">{{ emprendedor.rubro }}</span>
                         </td>
-                        <td><a href="mailto:{{ emprendedor.email }}" class="text-decoration-none text-success">{{ emprendedor.email }}</a></td>
                         <td>
                             {% if emprendedor.telefono %}
                                 {{ emprendedor.telefono }}
@@ -32,7 +33,6 @@
                                 <span class="text-muted small"><em>No especificado</em></span>
                             {% endif %}
                         </td>
-                        <td><code class="text-dark">@{{ emprendedor.usuario.username }}</code></td>
                     </tr>
                 {% empty %}
                     <tr>

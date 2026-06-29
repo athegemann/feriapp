@@ -23,7 +23,7 @@
           {% if user.is_authenticated %}
             {% if not user.emprendedor %}
               <li class="nav-item">
-                <a class="nav-link text-warning fw-semibold" href="{% url 'ferias:lista_emprendedores' %}">📋 Panel Emprendedores</a>
+                <a class="nav-link" href="{% url 'ferias:lista_emprendedores' %}">Emprendedores</a>
               </li>
             {% else %}
               <li class="nav-item">
