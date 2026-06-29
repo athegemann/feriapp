@@ -5,6 +5,17 @@ Permite administrar ferias temáticas, gestionar inscripciones de emprendedores 
 
 ---
 
+## IMPORTANTE
+
+Antes de correr la pagina, recomedamos:
+
+Luego de realizar las migraciones, ejecutar:
+`python manage.py loaddata .\app\fixtures\base.json`
+para cargar un set de datos base para comprobar el funcionamiento general de la pagina.
+
+Ejecutar:
+`python manage.py createsuperuser` con usuario `admin` mail `admin@gmail.com` y contrasena `admin1234` como pide la consigna del TP
+
 ## 🛠️ Stack
 
 | Tecnología | Versión |
