@@ -3,8 +3,8 @@
         "model": "auth.user",
         "pk": 1,
         "fields": {
-            "username": "juan_emprendedor",
-            "email": "juan@mielesdelsur.com",
+            "username": "juanfer",
+            "email": "jfquintero@river.com",
             "is_active": true
         }
     },
@@ -12,8 +12,8 @@
         "model": "auth.user",
         "pk": 2,
         "fields": {
-            "username": "maria_visitante",
-            "email": "maria@correo.com",
+            "username": "romero",
+            "email": "sromero@boca.com",
             "is_active": true
         }
     },
@@ -21,27 +21,27 @@
         "model": "app.categoria",
         "pk": 1,
         "fields": {
-            "nombre": "Gastronomía Local",
-            "descripcion": "Comidas típicas, conservas y bebidas artesanales."
+            "nombre": "Final de Copa",
+            "descripcion": "Desde la chica Copa Libertadores hasta el prestigioso Torneo Apertura."
         }
     },
     {
         "model": "app.categoria",
         "pk": 2,
         "fields": {
-            "nombre": "Artesanías",
-            "descripcion": "Productos hechos a mano, tejidos, cerámica y madera."
+            "nombre": "Torneo Promocion",
+            "descripcion": "Que es peor? Perder una final de copa o descender?"
         }
     },
     {
         "model": "app.feria",
         "pk": 1,
         "fields": {
-            "nombre": "Feria de Invierno Ushuaia 2026",
+            "nombre": "Final Copa Libertadores 2018",
             "categoria": 1,
-            "fecha_inicio": "2026-07-10",
-            "fecha_fin": "2026-07-15",
-            "ubicacion": "Paseo de las Rosas",
+            "fecha_inicio": "2018-10-11",
+            "fecha_fin": "2018-12-9",
+            "ubicacion": "Santiago Bernabeu",
             "capacidad_puestos": 50,
             "activa": true
         }
@@ -50,12 +50,25 @@
         "model": "app.feria",
         "pk": 2,
         "fields": {
-            "nombre": "Mercado de Artesanos",
-            "categoria": 2,
-            "fecha_inicio": "2026-08-01",
-            "fecha_fin": "2026-08-31",
-            "ubicacion": "Plaza Cívica",
+            "nombre": "Final Torneo Apertura 2026",
+            "categoria": 1,
+            "fecha_inicio": "2026-05-24",
+            "fecha_fin": "2026-05-24",
+            "ubicacion": "Mario Alberto Kempes",
             "capacidad_puestos": 20,
+            "activa": true
+        }
+    },
+    {
+        "model": "app.feria",
+        "pk": 3,
+        "fields": {
+            "nombre": "Campeonato Promocion 2010-11",
+            "categoria": 2,
+            "fecha_inicio": "2011-06-22",
+            "fecha_fin": "2011-06-26",
+            "ubicacion": "Gigante de Alberdi",
+            "capacidad_puestos": 10,
             "activa": true
         }
     },
@@ -64,7 +77,7 @@
         "pk": 1,
         "fields": {
             "feria": 1,
-            "nombre": "Patio de Comidas Calientes",
+            "nombre": "Sector de Lagrimas",
             "capacidad_puestos": 15,
             "tiene_conexion_electrica": true
         }
@@ -74,7 +87,7 @@
         "pk": 2,
         "fields": {
             "feria": 1,
-            "nombre": "Sector de Conservas",
+            "nombre": "Sector de Descensos",
             "capacidad_puestos": 35,
             "tiene_conexion_electrica": false
         }
@@ -83,11 +96,11 @@
         "model": "app.emprendedor",
         "pk": 1,
         "fields": {
-            "nombre": "Juan",
-            "apellido": "Pérez",
-            "email": "juan@mielesdelsur.com",
-            "rubro": "Apicultura y Conservas",
-            "telefono": "+542901555555",
+            "nombre": "Juanfer",
+            "apellido": "Quintero",
+            "email": "jfquintero@river.com",
+            "rubro": "Reventar a goles el arco",
+            "telefono": "+54290191218",
             "usuario": 1
         }
     },
@@ -95,9 +108,9 @@
         "model": "app.visitante",
         "pk": 1,
         "fields": {
-            "nombre": "María",
-            "apellido": "González",
-            "email": "maria@correo.com",
+            "nombre": "Sergio",
+            "apellido": "Romero",
+            "email": "sromero@boca.com",
             "usuario": 2,
             "fecha_registro": "2026-06-28"
         }
@@ -121,7 +134,7 @@
             "feriante": 1,
             "visitante": 1,
             "puntaje": 5,
-            "comentario": "Excelente calidad de los productos, la miel es increíble. Muy buena atención en el puesto.",
+            "comentario": "Todavia me duele...",
             "fecha_creacion": "2026-07-12"
         }
     }
