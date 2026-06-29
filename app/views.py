@@ -118,11 +118,6 @@ class PerfilPropioRedirectView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return redirect('ferias:perfil_usuario', pk=request.user.pk)
 
-
-class RegistroTipoView(TemplateView):
-    template_name = 'ferias/registro_tipo.html'
-
-
 class ListaFeriasView(ListView):
     """Lista todas las ferias activas."""
 
@@ -195,7 +190,7 @@ class DetalleFeriaView(DetailView):
 
 #Vista para registrar un nuevo emprendedor
 class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
-    template_name = 'ferias/registro_emprendedor.html'
+    template_name = 'registro/registro_emprendedor.html'
     form_class = RegistroEmprendedorForm
     success_url = reverse_lazy('login') #Fix para redirigir al login después del registro
     success_message = "Tu perfil fue creado con éxito, ya podés iniciar sesión."
@@ -218,7 +213,7 @@ class RegistroEmprendedorView(SuccessMessageMixin, CreateView):
 
 
 class RegistroVisitanteView(SuccessMessageMixin, CreateView):
-    template_name = 'ferias/registro_visitante.html'
+    template_name = 'registro/registro_visitante.html'
     form_class = RegistroVisitanteForm
     success_url = reverse_lazy('ferias:login')
     success_message = "Tu perfil de visitante fue creado con exito, ya puedes iniciar sesión."
@@ -237,6 +232,10 @@ class RegistroVisitanteView(SuccessMessageMixin, CreateView):
 
         messages.success(self.request, self.success_message)
         return redirect('ferias:perfil_usuario', pk=usuario.pk)
+
+
+class RegistroTipoView(TemplateView):
+    template_name = 'registro/registro_tipo.html'
 
 
 #Vista para ver mis inscripciones
