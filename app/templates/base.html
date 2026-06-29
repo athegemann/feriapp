@@ -21,6 +21,11 @@
           </li>
           
           {% if user.is_authenticated %}
+            {% if user.is_staff or user.is_superuser %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+              </li>
+            {% endif %}
             {% if not user.emprendedor %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'ferias:lista_emprendedores' %}">Emprendedores</a>
@@ -36,7 +41,7 @@
 
             <li class="nav-item ms-lg-3 me-lg-2">
               <span class="navbar-text text-white">
-                ¡Hola, <strong>{{ user.username }}</strong>!
+                Hola, <a href="{% url 'ferias:perfil_usuario' pk=user.pk %}" class="text-white text-decoration-none">{{ user.username }}</a>
               </span>
             </li>
             <li class="nav-item">
@@ -50,7 +55,7 @@
                   <a class="nav-link" href="{% url 'ferias:login' %}">Iniciar Sesión</a>
               </li>
               <li class="nav-item ms-1">
-                  <a class="btn btn-light btn-sm text-success fw-bold" href="{% url 'ferias:registro_emprendedor' %}">Registrarse</a>
+                  <a class="btn btn-light btn-sm text-success fw-bold" href="{% url 'ferias:registro_tipo' %}">Registrarse</a>
               </li>
           {% endif %}
         </ul>

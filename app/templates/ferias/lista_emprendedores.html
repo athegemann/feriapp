@@ -19,7 +19,7 @@
                 {% for emprendedor in emprendedores %}
                     <tr>
                         <td class="fw-semibold ps-3">
-                            <a href="{% url 'ferias:perfil_usuario' emprendedor.pk %}" class="text-primary text-decoration-none">
+                            <a href="{% url 'ferias:perfil_usuario' emprendedor.usuario.pk %}" class="text-primary text-decoration-none">
                                 {{ emprendedor.apellido }}, {{ emprendedor.nombre }}
                             </a>
                         </td>
