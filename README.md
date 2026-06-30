@@ -176,12 +176,18 @@ feriapp/
 
 > *(Mínimo 200 palabras — completar antes de la entrega final)*
 
-Describir aquí:
-- Por qué eligieron este dominio
-- Cómo modelaron la disponibilidad de puestos (método vs. anotación ORM)
-- Qué validaciones pusieron en el modelo vs. en el formulario
-- Cómo dividieron el trabajo entre los integrantes
-- Cualquier decisión no obvia (ej: por qué el constraint de puesto único, cómo manejaron lista de espera, etc.)
+Para este proyecto, se nos entrego el dominio de ferias y nos gusto la idea por lo que no lo intercambiamos con ningun compañero. Nos gusto mas que nada la idea de la organización de espacios para los feriantes.
+
+Respecto a la disponibilidad de puestos, elijimos modelarla a traves de métodos dinamicos directamente en la clase Feria (como puestos_ocupados y puestos_disponibles) en lugar de usar estaticos en la base de datos o depender de complejas anotaciones ORM en cada vista. Esto garantiza que se calcule siempre en tiempo real consultando la cantidad exacta de inscripciones con estado "confirmada", evitando inconsistencias si un emprendedor cancela su participación.
+
+En cuanto a las validaciones: Implementamos metodos de clase como validate() y new() en los modelos para asegurar la integridad de las reglas de negocio en la capa más baja (por ejemplo, asegurando que la fecha de fin no sea anterior a la de inicio).
+
+El trabajo lo dividimos en ejes modulares utilizando Git y GitHub. 
+Eliam se enfocó en el desarrollo del eje Core (diseñando los modelos de Ferias y Sectores, junto con sus correspondientes Vistas Basadas en Clases). 
+Pablo se encargó del eje de Inscripciones y Usuarios (gestionando la lógica para registrar, confirmar y cancelar la participación de los feriantes) 
+Albaro abordó el eje de Perfiles, reseñas y Visitantes, a su vez arreglando errores y sincronizando los codigos de los 3
+
+Una decisión de diseño no obvia fue la implementación de un "soft-delete" para las inscripciones. En lugar de eliminar el registro de la base de datos (.delete()) cuando un emprendedor cancela su asistencia, el sistema simplemente actualiza el atributo estado a 'cancelada'. Esto permite mantener un historial, no rompe la trazabilidad del puesto y facilita las estadísticas.
 
 ---
 
