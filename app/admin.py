@@ -3,7 +3,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib import admin
-from .models import Feria, Emprendedor, Inscripcion, Categoria, Sector
+from .models import Feria, Emprendedor, Inscripcion, Categoria, Resena, Sector, Visitante
 
 # 1. Formulario personalizado para validar fechas y meter calendarios en el Admin
 class FeriaAdminForm(forms.ModelForm):
@@ -87,3 +87,13 @@ class SectorAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'feria', 'capacidad_puestos', 'tiene_conexion_electrica')
     list_filter = ('tiene_conexion_electrica', 'feria')
     search_fields = ('nombre', 'feria__nombre')
+
+@admin.register(Visitante)
+class VisitanteAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'apellido', 'email')
+    search_fields = ('nombre', 'apellido', 'email')
+
+@admin.register(Resena)
+class ResenaAdmin(admin.ModelAdmin):
+    list_display = ('feriante', 'visitante', 'puntaje', 'comentario')
+    search_fields = ('feriante__nombre', 'visitante__nombre', 'puntaje')

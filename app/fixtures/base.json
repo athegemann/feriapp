@@ -12,8 +12,8 @@
         "model": "auth.user",
         "pk": 2,
         "fields": {
-            "username": "romero",
-            "email": "sromero@boca.com",
+            "username": "jrr",
+            "email": "riquelme@boca.com",
             "is_active": true
         }
     },
@@ -108,9 +108,9 @@
         "model": "app.visitante",
         "pk": 1,
         "fields": {
-            "nombre": "Sergio",
-            "apellido": "Romero",
-            "email": "sromero@boca.com",
+            "nombre": "Juan Roman",
+            "apellido": "Riquelme",
+            "email": "riquelme@boca.com",
             "usuario": 2,
             "fecha_registro": "2026-06-28"
         }
